@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { EmptyState } from "@/components/EmptyState";
 import { Container } from "@/components/Layout";
 import { TripCard, TripForm } from "@/components/Trip";
+import { Alert } from "@/components/Alert";
 import { useState, useEffect } from "react";
 import { listTrips, createTrip, TripSummary, CreateTripRequest } from "@/services/tripService";
 import { useRouter } from "next/navigation";
@@ -102,9 +103,13 @@ export default function TripsPage() {
         </div>
 
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
+          <Alert 
+            type="error"
+            title="Error"
+            message={error}
+            onDismiss={() => setError(null)}
+            className="mb-4"
+          />
         )}
         
         {loading ? (
