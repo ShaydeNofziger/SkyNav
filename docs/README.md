@@ -5,16 +5,25 @@ This directory contains project documentation for SkyNav.
 ## Contents
 
 - **[SkyNav MVP Specification.pdf](../SkyNav%20MVP%20Specification.pdf)**: Comprehensive product specification document (see parent directory)
+- **[Architecture Overview](./architecture.md)**: System architecture, design principles, and technology stack
+- **[Architecture Decision Records (ADRs)](./adr/)**: Key architectural decisions and their rationale
 
-## Documentation Structure (Planned)
+## Documentation Structure
 
 ### Technical Documentation
 
-- **Architecture**: System architecture diagrams and design decisions
-- **API Documentation**: REST API endpoint specifications
-- **Database Schema**: Data models and relationships
-- **Deployment Guide**: Step-by-step deployment instructions
-- **Development Guide**: Setup and development workflow
+- **[Architecture](./architecture.md)**: System architecture diagrams and design decisions ✅
+  - Mobile-first web app approach
+  - API-first backend architecture
+  - Azure hosting model and infrastructure
+- **[ADRs](./adr/)**: Architecture Decision Records ✅
+  - [ADR-001: Backend Technology Selection](./adr/001-backend-technology.md)
+  - [ADR-002: Authentication Strategy](./adr/002-authentication-strategy.md)
+  - [ADR-003: Data Storage Approach](./adr/003-data-storage-approach.md)
+- **API Documentation**: REST API endpoint specifications (Planned)
+- **Database Schema**: Data models and relationships (Planned)
+- **Deployment Guide**: Step-by-step deployment instructions (Planned)
+- **Development Guide**: Setup and development workflow (Planned)
 
 ### User Documentation
 
@@ -68,6 +77,8 @@ When adding documentation:
 
 ## Documentation TODO
 
+- [x] Create architecture overview document
+- [x] Add architecture decision records (ADRs)
 - [ ] Create API specification document
 - [ ] Add architecture diagrams
 - [ ] Write deployment guide
