@@ -116,6 +116,8 @@ export class DropZoneService {
     const totalCount = dropzones.length;
 
     // Apply pagination manually (Cosmos DB serverless doesn't support OFFSET/LIMIT efficiently)
+    // TODO: For production with large datasets, implement continuation token-based pagination
+    // to reduce RU consumption and improve performance
     const paginatedDropzones = dropzones.slice(offset, offset + pageSize);
 
     // Convert to DTOs
