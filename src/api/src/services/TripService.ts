@@ -5,7 +5,7 @@
 import { CosmosClient, Container, SqlQuerySpec } from '@azure/cosmos';
 import { randomUUID } from 'crypto';
 import { Trip, TripStatus, ChecklistItem, DEFAULT_TRIP_CHECKLIST } from '../models/Trip';
-import { TravelSegment, TravelSegmentType } from '../models/TravelSegment';
+import { TravelSegment, TravelSegmentType, FlightDetails, DriveDetails, Accommodation, JumpType } from '../models/TravelSegment';
 import { TripSummaryDTO, TripDetailDTO, toTripSummaryDTO, toTripDetailDTO, CreateTripDTO } from '../dtos/TripDTO';
 
 /**
@@ -261,12 +261,12 @@ export class TripService {
       type: TravelSegmentType;
       startDate: string;
       endDate: string;
-      flightDetails?: any;
-      driveDetails?: any;
-      lodgingDetails?: any;
+      flightDetails?: FlightDetails;
+      driveDetails?: DriveDetails;
+      lodgingDetails?: Accommodation;
       dropzoneId?: string;
       plannedJumpCount?: number;
-      jumpTypes?: any[];
+      jumpTypes?: JumpType[];
       jumpGoals?: string;
       notes?: string;
     }
@@ -327,13 +327,13 @@ export class TripService {
     updates: {
       startDate?: string;
       endDate?: string;
-      flightDetails?: any;
-      driveDetails?: any;
-      lodgingDetails?: any;
+      flightDetails?: FlightDetails;
+      driveDetails?: DriveDetails;
+      lodgingDetails?: Accommodation;
       dropzoneId?: string;
       plannedJumpCount?: number;
       actualJumpCount?: number;
-      jumpTypes?: any[];
+      jumpTypes?: JumpType[];
       jumpGoals?: string;
       notes?: string;
       completed?: boolean;
@@ -423,7 +423,7 @@ export class TripService {
     tripId: string,
     userId: string,
     segmentId: string
-  ): Promise<any | null> {
+  ): Promise<TravelSegment | null> {
     const trip = await this.getTripById(tripId, userId);
     if (!trip) {
       return null;
