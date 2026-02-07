@@ -1,0 +1,56 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Matches multiple files with brace expansion notation
+[*.{js,jsx,ts,tsx,json,yml,yaml,css,scss,md}]
+indent_style = space
+indent_size = 2
+
+# Python
+[*.py]
+indent_style = space
+indent_size = 4
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+
+# Makefile
+[Makefile]
+indent_style = tab
+
+# Batch files
+[*.{cmd,bat}]
+end_of_line = crlf
+
+# Shell scripts
+[*.sh]
+end_of_line = lf
+
+# Azure Functions configuration
+[host.json]
+indent_style = space
+indent_size = 2
+
+# Package files
+[{package.json,package-lock.json}]
+indent_style = space
+indent_size = 2
+
+# Infrastructure as Code files
+[*.{tf,tfvars}]
+indent_style = space
+indent_size = 2
+
+[*.bicep]
+indent_style = space
+indent_size = 2
