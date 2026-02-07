@@ -1,0 +1,274 @@
+[
+  {
+    "id": "dz-00000000-0000-0000-0000-000000000001",
+    "name": "Skydive Perris",
+    "displayName": "Perris Valley Skydiving",
+    "description": "One of the largest skydiving centers in the world, offering world-class facilities and year-round jumping.",
+    "location": {
+      "type": "Point",
+      "coordinates": [-117.2156, 33.7636]
+    },
+    "address": {
+      "street": "2091 Goetz Rd",
+      "city": "Perris",
+      "state": "CA",
+      "zip": "92570",
+      "country": "USA"
+    },
+    "phone": "+1-951-657-8727",
+    "email": "info@skydiveperris.com",
+    "website": "https://www.skydiveperris.com",
+    "facilities": {
+      "maxAltitude": 13500,
+      "aircraft": ["Twin Otter", "Skyvan", "King Air"],
+      "hasOnSiteRigger": true,
+      "hasBunkhouse": true,
+      "hasRentalGear": true,
+      "hasCafeteria": true,
+      "hasShowers": true
+    },
+    "seasonality": "Year-round operations, best weather April-October",
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "createdBy": "system"
+  },
+  {
+    "id": "dz-00000000-0000-0000-0000-000000000002",
+    "name": "Skydive Chicago",
+    "displayName": "Skydive Chicago",
+    "description": "Premier Midwest dropzone with excellent facilities and a strong competition community.",
+    "location": {
+      "type": "Point",
+      "coordinates": [-88.4567, 41.5789]
+    },
+    "address": {
+      "street": "3215 E 1969th Rd",
+      "city": "Ottawa",
+      "state": "IL",
+      "zip": "61350",
+      "country": "USA"
+    },
+    "phone": "+1-815-433-0000",
+    "email": "info@skydivechicago.com",
+    "website": "https://www.skydivechicago.com",
+    "facilities": {
+      "maxAltitude": 14000,
+      "aircraft": ["Twin Otter", "Caravan", "Skyvan"],
+      "hasOnSiteRigger": true,
+      "hasBunkhouse": true,
+      "hasRentalGear": true,
+      "hasCafeteria": true,
+      "hasShowers": true
+    },
+    "seasonality": "March-November, weather permitting",
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "createdBy": "system"
+  },
+  {
+    "id": "dz-00000000-0000-0000-0000-000000000003",
+    "name": "Skydive Spaceland Houston",
+    "displayName": "Spaceland Houston",
+    "description": "Fast-paced dropzone with excellent coaching programs and a welcoming community.",
+    "location": {
+      "type": "Point",
+      "coordinates": [-95.5678, 29.4567]
+    },
+    "address": {
+      "street": "18000 FM 521 Rd",
+      "city": "Rosharon",
+      "state": "TX",
+      "zip": "77583",
+      "country": "USA"
+    },
+    "phone": "+1-281-369-3337",
+    "email": "houston@spaceland.com",
+    "website": "https://www.spaceland.com/houston",
+    "facilities": {
+      "maxAltitude": 14000,
+      "aircraft": ["Twin Otter", "Caravan"],
+      "hasOnSiteRigger": true,
+      "hasBunkhouse": false,
+      "hasRentalGear": true,
+      "hasCafeteria": true,
+      "hasShowers": false
+    },
+    "seasonality": "Year-round operations",
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "createdBy": "system"
+  },
+  {
+    "id": "dz-00000000-0000-0000-0000-000000000004",
+    "name": "Skydive Arizona",
+    "displayName": "Skydive Arizona",
+    "description": "The world's largest skydiving center, hosting major events and offering exceptional facilities.",
+    "location": {
+      "type": "Point",
+      "coordinates": [-111.6543, 32.9876]
+    },
+    "address": {
+      "street": "4900 N Taylor St",
+      "city": "Eloy",
+      "state": "AZ",
+      "zip": "85131",
+      "country": "USA"
+    },
+    "phone": "+1-520-466-3753",
+    "email": "info@skydiveaz.com",
+    "website": "https://www.skydiveaz.com",
+    "facilities": {
+      "maxAltitude": 13500,
+      "aircraft": ["Twin Otter", "Skyvan", "King Air", "Caravan"],
+      "hasOnSiteRigger": true,
+      "hasBunkhouse": true,
+      "hasRentalGear": true,
+      "hasCafeteria": true,
+      "hasShowers": true
+    },
+    "seasonality": "Year-round, peak season October-April",
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "createdBy": "system"
+  },
+  {
+    "id": "dz-00000000-0000-0000-0000-000000000005",
+    "name": "Skydive Sebastian",
+    "displayName": "Skydive Sebastian",
+    "description": "Florida's premier East Coast dropzone with beautiful ocean views and year-round jumping.",
+    "location": {
+      "type": "Point",
+      "coordinates": [-80.4956, 27.8123]
+    },
+    "address": {
+      "street": "400 Airport Dr W",
+      "city": "Sebastian",
+      "state": "FL",
+      "zip": "32958",
+      "country": "USA"
+    },
+    "phone": "+1-772-388-5672",
+    "email": "info@skydivesebastian.com",
+    "website": "https://www.skydivesebastian.com",
+    "facilities": {
+      "maxAltitude": 14000,
+      "aircraft": ["Twin Otter", "Caravan"],
+      "hasOnSiteRigger": true,
+      "hasBunkhouse": true,
+      "hasRentalGear": true,
+      "hasCafeteria": true,
+      "hasShowers": true
+    },
+    "seasonality": "Year-round operations",
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "createdBy": "system"
+  },
+  {
+    "id": "dz-00000000-0000-0000-0000-000000000006",
+    "name": "Skydive Deland",
+    "displayName": "Skydive DeLand",
+    "description": "Historic Florida dropzone known for hosting major events and offering top-tier coaching.",
+    "location": {
+      "type": "Point",
+      "coordinates": [-81.2839, 29.0678]
+    },
+    "address": {
+      "street": "1600 Flightline Blvd",
+      "city": "DeLand",
+      "state": "FL",
+      "zip": "32724",
+      "country": "USA"
+    },
+    "phone": "+1-386-738-3539",
+    "email": "info@skydivedeland.com",
+    "website": "https://www.skydivedeland.com",
+    "facilities": {
+      "maxAltitude": 14000,
+      "aircraft": ["Twin Otter", "Caravan", "King Air"],
+      "hasOnSiteRigger": true,
+      "hasBunkhouse": true,
+      "hasRentalGear": true,
+      "hasCafeteria": true,
+      "hasShowers": true
+    },
+    "seasonality": "Year-round operations",
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "createdBy": "system"
+  },
+  {
+    "id": "dz-00000000-0000-0000-0000-000000000007",
+    "name": "Skydive New England",
+    "displayName": "Skydive New England",
+    "description": "Northeast's premier skydiving center with beautiful views and excellent facilities.",
+    "location": {
+      "type": "Point",
+      "coordinates": [-71.2345, 42.4567]
+    },
+    "address": {
+      "street": "99 Sand Hill Rd",
+      "city": "Lebanon",
+      "state": "ME",
+      "zip": "04027",
+      "country": "USA"
+    },
+    "phone": "+1-207-490-3100",
+    "email": "info@skydivenewengland.com",
+    "website": "https://www.skydivenewengland.com",
+    "facilities": {
+      "maxAltitude": 14000,
+      "aircraft": ["Twin Otter"],
+      "hasOnSiteRigger": true,
+      "hasBunkhouse": false,
+      "hasRentalGear": true,
+      "hasCafeteria": false,
+      "hasShowers": false
+    },
+    "seasonality": "April-November, weather dependent",
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "createdBy": "system"
+  },
+  {
+    "id": "dz-00000000-0000-0000-0000-000000000008",
+    "name": "Skydive Carolina",
+    "displayName": "Skydive Carolina",
+    "description": "Beautiful Southeast dropzone with a focus on freefly and swooping.",
+    "location": {
+      "type": "Point",
+      "coordinates": [-80.8765, 35.2345]
+    },
+    "address": {
+      "street": "750 Airport Rd",
+      "city": "Chester",
+      "state": "SC",
+      "zip": "29706",
+      "country": "USA"
+    },
+    "phone": "+1-803-581-5867",
+    "email": "info@skydivecarolina.com",
+    "website": "https://www.skydivecarolina.com",
+    "facilities": {
+      "maxAltitude": 13500,
+      "aircraft": ["Twin Otter", "Caravan"],
+      "hasOnSiteRigger": true,
+      "hasBunkhouse": true,
+      "hasRentalGear": true,
+      "hasCafeteria": false,
+      "hasShowers": true
+    },
+    "seasonality": "Year-round, weather permitting",
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z",
+    "createdBy": "system"
+  }
+]
