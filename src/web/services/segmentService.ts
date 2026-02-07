@@ -4,6 +4,8 @@
  * Handles all travel segment-related API calls
  */
 
+import { TravelSegment } from './tripService';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7071/api';
 
 export interface CreateSegmentRequest {
@@ -76,7 +78,7 @@ export async function createSegment(
   accessToken: string,
   tripId: string,
   segment: CreateSegmentRequest
-): Promise<any> {
+): Promise<TravelSegment> {
   const response = await fetch(`${API_BASE_URL}/trips/${tripId}/segments`, {
     method: 'POST',
     headers: {
@@ -101,7 +103,7 @@ export async function updateSegment(
   tripId: string,
   segmentId: string,
   updates: UpdateSegmentRequest
-): Promise<any> {
+): Promise<TravelSegment> {
   const response = await fetch(`${API_BASE_URL}/trips/${tripId}/segments/${segmentId}`, {
     method: 'PUT',
     headers: {
@@ -146,7 +148,7 @@ export async function getSegment(
   accessToken: string,
   tripId: string,
   segmentId: string
-): Promise<any> {
+): Promise<TravelSegment> {
   const response = await fetch(`${API_BASE_URL}/trips/${tripId}/segments/${segmentId}`, {
     method: 'GET',
     headers: {

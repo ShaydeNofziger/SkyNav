@@ -113,8 +113,8 @@ export default function TripDetailPage() {
       // Update locally first for instant feedback
       setTrip({ ...trip, checklist: updatedChecklist });
 
-      // Note: We would need an updateChecklist endpoint for this
-      // For now, we'll just update locally
+      // TODO: Implement checklist update API endpoint
+      // Will need PUT /api/trips/{id}/checklist endpoint to persist checklist changes
     } catch (err) {
       console.error('Error updating checklist:', err);
       // Reload to get accurate state
