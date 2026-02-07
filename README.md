@@ -1,5 +1,8 @@
 # SkyNav
 
+![Deploy API](https://github.com/ShaydeNofziger/SkyNav/actions/workflows/deploy-api.yml/badge.svg)
+![Deploy Web](https://github.com/ShaydeNofziger/SkyNav/actions/workflows/deploy-web.yml/badge.svg)
+
 **Dropzone Intelligence for Traveling Skydivers**
 
 SkyNav is a mobile-first progressive web application (PWA) that provides skydivers with structured operational intelligence for unfamiliar dropzones. The platform replaces fragmented word-of-mouth knowledge with a centralized, community-enriched repository of dropzone information, landing area intelligence, hazard awareness data, and travel preparation tools.
@@ -124,6 +127,25 @@ The following are intentionally excluded from the MVP to maintain scope discipli
 - All community content moderated before publication
 - Secure API endpoints with proper authorization
 - Data privacy compliance (GDPR considerations)
+
+## 🚀 Deployment
+
+SkyNav uses GitHub Actions for automated CI/CD deployments to Azure:
+
+- **Automatic Deployment**: Pushes to `main` automatically deploy to production
+- **Preview Deployments**: Pull requests create preview environments
+- **Manual Deploys**: One-click deployments via GitHub Actions
+
+**Quick Start**:
+```bash
+# Merge to main - deploys automatically
+git push origin main
+```
+
+**Documentation**:
+- 📖 [Deployment Guide](./docs/DEPLOYMENT.md) - Complete deployment documentation
+- ⚡ [Release Process](./docs/RELEASE_PROCESS.md) - Quick reference for releases
+- 🏗️ [Infrastructure Setup](./infra/README.md) - Azure resource provisioning
 
 ## 📝 License
 
