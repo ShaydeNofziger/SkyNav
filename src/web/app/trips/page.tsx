@@ -3,11 +3,9 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { EmptyState } from "@/components/EmptyState";
 import { Container } from "@/components/Layout";
-import { useRouter } from "next/navigation";
 
 export default function TripsPage() {
   const { isAuthenticated, login } = useAuth();
-  const router = useRouter();
 
   if (!isAuthenticated) {
     return (

@@ -10,7 +10,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
 export function MobileNav() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, login } = useAuth();
   const pathname = usePathname();
 
   const isActive = (path: string) => {
@@ -76,17 +76,15 @@ export function MobileNav() {
             <span className="text-xs mt-1">Profile</span>
           </Link>
         ) : (
-          <Link
-            href="/"
-            className={`flex flex-col items-center justify-center flex-1 h-full ${
-              isActive('/login') ? 'text-blue-600' : 'text-gray-600'
-            }`}
+          <button
+            onClick={() => login()}
+            className="flex flex-col items-center justify-center flex-1 h-full text-gray-600"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
             </svg>
             <span className="text-xs mt-1">Login</span>
-          </Link>
+          </button>
         )}
       </div>
     </nav>
