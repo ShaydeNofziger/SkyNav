@@ -42,7 +42,10 @@ export {
 // TravelSegment model
 export {
   TravelSegment,
+  TravelSegmentType,
   JumpType,
   Accommodation,
+  FlightDetails,
+  DriveDetails,
   isTravelSegment,
 } from './TravelSegment';
