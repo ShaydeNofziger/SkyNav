@@ -17,20 +17,25 @@ Skydivers traveling to unfamiliar dropzones face a significant safety and experi
 - **Community-contributed insights** moderated for accuracy (community notes)
 - **Personal utility tools** for trip planning (favorites, travel mode)
 
-## 🚀 MVP Scope
+## 🚀 MVP Features
 
-The MVP targets **traveling skydivers** — jumpers who visit dropzones outside their home DZ — and delivers immediate utility through five core features:
+### ✅ Implemented Features
 
-### Core Features (P0)
+1. **User Authentication** - Azure AD B2C integration with JWT-based auth
+2. **User Profile Management** - Personal profile with skydiving credentials and preferences
+3. **Trip Planning** - Create and manage skydiving trips with dates and destinations
+4. **Travel Logistics** - Track flights, drives, and lodging for each trip
+5. **Dropzone Directory** - Public API endpoint for browsing dropzones
 
-1. **Dropzone Directory** - Searchable, browsable directory of dropzones with detailed profiles
-2. **Interactive Landing Maps** - Azure Maps-powered landing area visualization with hazard and pattern overlays
-3. **Admin Content Management** - Console for seeding and managing dropzone data and annotations
+### 🚧 In Progress / Planned MVP Features
 
-### Important Features (P1)
+6. **Dropzone Detail Pages** - Comprehensive dropzone profiles with operational details
+7. **Interactive Landing Maps** - Azure Maps-powered landing area visualization with hazards
+8. **Community Notes** - Moderated community contributions for real-world insights
+9. **Favorites & Travel Mode** - Personal DZ collections with travel preparation checklists
+10. **Admin Console** - Content management for dropzones, maps, and community notes
 
-4. **Community Notes** - Moderated community contributions for real-world insights
-5. **Favorites & Travel Mode** - Personal DZ collections with travel preparation checklists
+See [docs/roadmap.md](./docs/roadmap.md) for detailed roadmap and post-MVP features.
 
 ## 🏗️ Repository Structure
 
@@ -128,6 +133,82 @@ The following are intentionally excluded from the MVP to maintain scope discipli
 - Secure API endpoints with proper authorization
 - Data privacy compliance (GDPR considerations)
 
+## 🛠️ Local Development Setup
+
+### Prerequisites
+
+- **Node.js** 18+ and npm
+- **Azure Functions Core Tools** (for API development)
+- **Azure Cosmos DB Emulator** (optional for local database)
+- **Git**
+
+### API Setup
+
+```bash
+# Navigate to API directory
+cd src/api
+
+# Install dependencies
+npm install
+
+# Copy environment template
+cp local.settings.example.json local.settings.json
+
+# Edit local.settings.json with your configuration:
+# - Cosmos DB connection (use emulator or cloud instance)
+# - Azure AD B2C credentials
+# - Azure Maps subscription key
+
+# Build the TypeScript code
+npm run build
+
+# Start Azure Functions runtime (runs on http://localhost:7071)
+func start
+# or use npm script
+npm run watch  # Watches for changes and rebuilds
+```
+
+**Note**: The API requires a Cosmos DB instance. You can:
+- Install the [Azure Cosmos DB Emulator](https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator) (Windows/Docker)
+- Use a free tier Azure Cosmos DB account
+- See `local.settings.example.json` for required configuration
+
+### Web Setup
+
+```bash
+# Navigate to web directory
+cd src/web
+
+# Install dependencies (use --legacy-peer-deps due to React version conflicts)
+npm install --legacy-peer-deps
+
+# Copy environment template
+cp .env.example .env.local
+
+# Edit .env.local with your configuration:
+# - NEXT_PUBLIC_API_URL (points to local API: http://localhost:7071/api)
+# - Azure AD B2C tenant details
+# - Azure Maps subscription key
+
+# Start development server (runs on http://localhost:3000)
+npm run dev
+```
+
+### Running the Full Stack Locally
+
+1. Start the API in one terminal: `cd src/api && func start`
+2. Start the web app in another terminal: `cd src/web && npm run dev`
+3. Open http://localhost:3000 in your browser
+4. Sign in with Azure AD B2C to test authenticated features
+
+### Seeding Test Data
+
+```bash
+# From the API directory, seed dropzones into your database
+cd src/api
+npm run seed-dropzones
+```
+
 ## 🚀 Deployment
 
 SkyNav uses GitHub Actions for automated CI/CD deployments to Azure:
@@ -136,7 +217,7 @@ SkyNav uses GitHub Actions for automated CI/CD deployments to Azure:
 - **Preview Deployments**: Pull requests create preview environments
 - **Manual Deploys**: One-click deployments via GitHub Actions
 
-**Quick Start**:
+**Quick Deployment**:
 ```bash
 # Merge to main - deploys automatically
 git push origin main
@@ -146,6 +227,7 @@ git push origin main
 - 📖 [Deployment Guide](./docs/DEPLOYMENT.md) - Complete deployment documentation
 - ⚡ [Release Process](./docs/RELEASE_PROCESS.md) - Quick reference for releases
 - 🏗️ [Infrastructure Setup](./infra/README.md) - Azure resource provisioning
+- 🔑 [Secrets Configuration](./.github/SECRETS.md) - Required GitHub secrets
 
 ## 📝 License
 
