@@ -9,11 +9,16 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/fu
 import { validateToken } from '../middleware/auth';
 import { createTripService } from '../services/TripService';
 import { TripStatus } from '../models/Trip';
+import { createLogger, TelemetryEvents } from '../utils/telemetry';
 
 export async function listTrips(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+  const startTime = Date.now();
+  const logger = createLogger(context, 'listTrips');
+  
   try {
     // Validate JWT token
     const user = await validateToken(request, context);
+    logger.info('User authenticated', { userId: user.userId });
     
     // Parse query parameters
     const status = request.query.get('status') as TripStatus | undefined;
@@ -22,6 +27,10 @@ export async function listTrips(request: HttpRequest, context: InvocationContext
 
     // Validate page parameters
     if (page < 1) {
+      logger.warn('Invalid page parameter');
+      const duration = Date.now() - startTime;
+      logger.trackRequest('GET /api/trips', request.url, duration, 400, false);
+      
       return {
         status: 400,
         jsonBody: {
@@ -32,6 +41,10 @@ export async function listTrips(request: HttpRequest, context: InvocationContext
     }
 
     if (pageSize < 1 || pageSize > 100) {
+      logger.warn('Invalid pageSize parameter');
+      const duration = Date.now() - startTime;
+      logger.trackRequest('GET /api/trips', request.url, duration, 400, false);
+      
       return {
         status: 400,
         jsonBody: {
@@ -50,14 +63,33 @@ export async function listTrips(request: HttpRequest, context: InvocationContext
       pageSize
     });
 
+    // Track success
+    const duration = Date.now() - startTime;
+    logger.trackEvent(TelemetryEvents.TRIP_LIST_VIEWED, { 
+      userId: user.userId,
+      resultCount: result.trips.length.toString(),
+      page: page.toString()
+    });
+    logger.trackRequest('GET /api/trips', request.url, duration, 200, true, {
+      userId: user.userId
+    });
+
     return {
       status: 200,
       jsonBody: result
     };
   } catch (error) {
-    context.error('Error listing trips', error);
+    const duration = Date.now() - startTime;
+    logger.error('Error listing trips', error instanceof Error ? error : undefined, {
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
     
     if (error instanceof Error && error.message.includes('Token validation failed')) {
+      logger.trackEvent(TelemetryEvents.AUTH_FAILED, { 
+        endpoint: 'listTrips'
+      });
+      logger.trackRequest('GET /api/trips', request.url, duration, 401, false);
+      
       return {
         status: 401,
         jsonBody: {
@@ -66,6 +98,12 @@ export async function listTrips(request: HttpRequest, context: InvocationContext
         }
       };
     }
+
+    logger.trackEvent(TelemetryEvents.API_ERROR, { 
+      endpoint: 'listTrips',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
+    logger.trackRequest('GET /api/trips', request.url, duration, 500, false);
 
     return {
       status: 500,

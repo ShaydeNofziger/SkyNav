@@ -25,6 +25,7 @@ import {
   validateDriveDetails,
   validateLodgingDetails
 } from '../utils/validation';
+import { createLogger, TelemetryEvents } from '../utils/telemetry';
 
 /**
  * Validate create travel segment request body
@@ -93,20 +94,29 @@ function validateCreateSegmentRequest(body: any): { valid: boolean; error?: stri
 }
 
 export async function createTravelSegment(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+  const startTime = Date.now();
+  const logger = createLogger(context, 'createTravelSegment');
+  
   try {
     // Validate JWT token
     const user = await validateToken(request, context);
+    logger.info('User authenticated', { userId: user.userId });
     
     // Get trip ID from route parameter
     const tripId = request.params.tripId;
     
     if (!tripId) {
+      logger.warn('Trip ID missing');
+      const duration = Date.now() - startTime;
+      logger.trackRequest('POST /api/trips/{tripId}/segments', request.url, duration, 400, false);
       return badRequest('Trip ID is required');
     }
 
     // Parse and validate request body
     const parseResult = await parseRequestBody<CreateTravelSegmentDTO>(request);
     if (!parseResult.success) {
+      const duration = Date.now() - startTime;
+      logger.trackRequest('POST /api/trips/{tripId}/segments', request.url, duration, parseResult.response.status || 400, false);
       return parseResult.response;
     }
     
@@ -114,6 +124,14 @@ export async function createTravelSegment(request: HttpRequest, context: Invocat
     const validation = validateCreateSegmentRequest(body);
     
     if (!validation.valid) {
+      logger.warn('Validation failed', { error: validation.error || 'Unknown validation error' });
+      logger.trackEvent(TelemetryEvents.VALIDATION_ERROR, { 
+        endpoint: 'createTravelSegment',
+        error: validation.error || 'Unknown validation error'
+      });
+      const duration = Date.now() - startTime;
+      logger.trackRequest('POST /api/trips/{tripId}/segments', request.url, duration, 400, false);
+      
       if (validation.details) {
         return validationError(validation.error || 'Invalid segment data', validation.details);
       }
@@ -128,20 +146,45 @@ export async function createTravelSegment(request: HttpRequest, context: Invocat
     const newSegment = trip.segments[trip.segments.length - 1];
     const segmentDto = toTravelSegmentDetailDTO(newSegment);
 
+    // Track success
+    const duration = Date.now() - startTime;
+    logger.trackEvent(TelemetryEvents.SEGMENT_CREATED, { 
+      userId: user.userId,
+      tripId: trip.id,
+      segmentId: newSegment.id
+    });
+    logger.trackRequest('POST /api/trips/{tripId}/segments', request.url, duration, 201, true, {
+      userId: user.userId
+    });
+
     return {
       status: 201,
       jsonBody: segmentDto
     };
   } catch (error) {
-    context.error('Error creating travel segment', error);
+    const duration = Date.now() - startTime;
+    logger.error('Error creating travel segment', error instanceof Error ? error : undefined, {
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
     
     if (error instanceof Error && error.message.includes('Token validation failed')) {
+      logger.trackEvent(TelemetryEvents.AUTH_FAILED, { 
+        endpoint: 'createTravelSegment'
+      });
+      logger.trackRequest('POST /api/trips/{tripId}/segments', request.url, duration, 401, false);
       return handleAuthError(error);
     }
 
     if (error instanceof Error && error.message === 'Trip not found') {
+      logger.trackRequest('POST /api/trips/{tripId}/segments', request.url, duration, 404, false);
       return notFound('The specified trip was not found or does not belong to you');
     }
+
+    logger.trackEvent(TelemetryEvents.API_ERROR, { 
+      endpoint: 'createTravelSegment',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
+    logger.trackRequest('POST /api/trips/{tripId}/segments', request.url, duration, 500, false);
 
     return internalServerError();
   }

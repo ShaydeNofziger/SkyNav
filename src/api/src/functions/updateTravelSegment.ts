@@ -9,6 +9,7 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/fu
 import { validateToken } from '../middleware/auth';
 import { createTripService } from '../services/TripService';
 import { UpdateTravelSegmentDTO, toTravelSegmentDetailDTO } from '../dtos/TravelSegmentDTO';
+import { createLogger, TelemetryEvents } from '../utils/telemetry';
 
 /**
  * Validate update travel segment request body
@@ -43,15 +44,23 @@ function validateUpdateSegmentRequest(body: any): { valid: boolean; error?: stri
 }
 
 export async function updateTravelSegment(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+  const startTime = Date.now();
+  const logger = createLogger(context, 'updateTravelSegment');
+  
   try {
     // Validate JWT token
     const user = await validateToken(request, context);
+    logger.info('User authenticated', { userId: user.userId });
     
     // Get route parameters
     const tripId = request.params.tripId;
     const segmentId = request.params.segmentId;
     
     if (!tripId) {
+      logger.warn('Trip ID missing');
+      const duration = Date.now() - startTime;
+      logger.trackRequest('PUT /api/trips/{tripId}/segments/{segmentId}', request.url, duration, 400, false);
+      
       return {
         status: 400,
         jsonBody: {
@@ -62,6 +71,10 @@ export async function updateTravelSegment(request: HttpRequest, context: Invocat
     }
 
     if (!segmentId) {
+      logger.warn('Segment ID missing');
+      const duration = Date.now() - startTime;
+      logger.trackRequest('PUT /api/trips/{tripId}/segments/{segmentId}', request.url, duration, 400, false);
+      
       return {
         status: 400,
         jsonBody: {
@@ -76,6 +89,14 @@ export async function updateTravelSegment(request: HttpRequest, context: Invocat
     const validation = validateUpdateSegmentRequest(body);
     
     if (!validation.valid) {
+      logger.warn('Validation failed', { error: validation.error || 'Unknown validation error' });
+      logger.trackEvent(TelemetryEvents.VALIDATION_ERROR, { 
+        endpoint: 'updateTravelSegment',
+        error: validation.error || 'Unknown validation error'
+      });
+      const duration = Date.now() - startTime;
+      logger.trackRequest('PUT /api/trips/{tripId}/segments/{segmentId}', request.url, duration, 400, false);
+      
       return {
         status: 400,
         jsonBody: {
@@ -92,19 +113,46 @@ export async function updateTravelSegment(request: HttpRequest, context: Invocat
     // Find the updated segment
     const updatedSegment = trip.segments.find(s => s.id === segmentId);
     if (!updatedSegment) {
+      logger.error('Segment not found after update', undefined, { segmentId, tripId });
+      const duration = Date.now() - startTime;
+      logger.trackEvent(TelemetryEvents.API_ERROR, { 
+        endpoint: 'updateTravelSegment',
+        errorMessage: 'Segment not found after update'
+      });
+      logger.trackRequest('PUT /api/trips/{tripId}/segments/{segmentId}', request.url, duration, 500, false);
+      
       throw new Error('Segment not found after update');
     }
 
     const segmentDto = toTravelSegmentDetailDTO(updatedSegment);
+
+    // Track success
+    const duration = Date.now() - startTime;
+    logger.trackEvent(TelemetryEvents.SEGMENT_UPDATED, { 
+      userId: user.userId,
+      tripId: trip.id,
+      segmentId: updatedSegment.id
+    });
+    logger.trackRequest('PUT /api/trips/{tripId}/segments/{segmentId}', request.url, duration, 200, true, {
+      userId: user.userId
+    });
 
     return {
       status: 200,
       jsonBody: segmentDto
     };
   } catch (error) {
-    context.error('Error updating travel segment', error);
+    const duration = Date.now() - startTime;
+    logger.error('Error updating travel segment', error instanceof Error ? error : undefined, {
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
     
     if (error instanceof Error && error.message.includes('Token validation failed')) {
+      logger.trackEvent(TelemetryEvents.AUTH_FAILED, { 
+        endpoint: 'updateTravelSegment'
+      });
+      logger.trackRequest('PUT /api/trips/{tripId}/segments/{segmentId}', request.url, duration, 401, false);
+      
       return {
         status: 401,
         jsonBody: {
@@ -115,6 +163,8 @@ export async function updateTravelSegment(request: HttpRequest, context: Invocat
     }
 
     if (error instanceof Error && (error.message === 'Trip not found' || error.message === 'Travel segment not found')) {
+      logger.trackRequest('PUT /api/trips/{tripId}/segments/{segmentId}', request.url, duration, 404, false);
+      
       return {
         status: 404,
         jsonBody: {
@@ -123,6 +173,12 @@ export async function updateTravelSegment(request: HttpRequest, context: Invocat
         }
       };
     }
+
+    logger.trackEvent(TelemetryEvents.API_ERROR, { 
+      endpoint: 'updateTravelSegment',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
+    logger.trackRequest('PUT /api/trips/{tripId}/segments/{segmentId}', request.url, duration, 500, false);
 
     return {
       status: 500,

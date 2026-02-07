@@ -9,17 +9,26 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/fu
 import { validateToken } from '../middleware/auth';
 import { createTripService } from '../services/TripService';
 import { toTravelSegmentDetailDTO } from '../dtos/TravelSegmentDTO';
+import { createLogger, TelemetryEvents } from '../utils/telemetry';
 
 export async function getTravelSegment(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+  const startTime = Date.now();
+  const logger = createLogger(context, 'getTravelSegment');
+  
   try {
     // Validate JWT token
     const user = await validateToken(request, context);
+    logger.info('User authenticated', { userId: user.userId });
     
     // Get route parameters
     const tripId = request.params.tripId;
     const segmentId = request.params.segmentId;
     
     if (!tripId) {
+      logger.warn('Trip ID missing');
+      const duration = Date.now() - startTime;
+      logger.trackRequest('GET /api/trips/{tripId}/segments/{segmentId}', request.url, duration, 400, false);
+      
       return {
         status: 400,
         jsonBody: {
@@ -30,6 +39,10 @@ export async function getTravelSegment(request: HttpRequest, context: Invocation
     }
 
     if (!segmentId) {
+      logger.warn('Segment ID missing');
+      const duration = Date.now() - startTime;
+      logger.trackRequest('GET /api/trips/{tripId}/segments/{segmentId}', request.url, duration, 400, false);
+      
       return {
         status: 400,
         jsonBody: {
@@ -44,6 +57,10 @@ export async function getTravelSegment(request: HttpRequest, context: Invocation
     const segment = await tripService.getTravelSegment(tripId, user.userId, segmentId);
 
     if (!segment) {
+      logger.warn('Travel segment not found', { tripId, segmentId, userId: user.userId });
+      const duration = Date.now() - startTime;
+      logger.trackRequest('GET /api/trips/{tripId}/segments/{segmentId}', request.url, duration, 404, false);
+      
       return {
         status: 404,
         jsonBody: {
@@ -55,14 +72,33 @@ export async function getTravelSegment(request: HttpRequest, context: Invocation
 
     const segmentDto = toTravelSegmentDetailDTO(segment);
 
+    // Track success
+    const duration = Date.now() - startTime;
+    logger.trackEvent(TelemetryEvents.SEGMENT_VIEWED, { 
+      userId: user.userId,
+      tripId: tripId,
+      segmentId: segment.id
+    });
+    logger.trackRequest('GET /api/trips/{tripId}/segments/{segmentId}', request.url, duration, 200, true, {
+      userId: user.userId
+    });
+
     return {
       status: 200,
       jsonBody: segmentDto
     };
   } catch (error) {
-    context.error('Error getting travel segment', error);
+    const duration = Date.now() - startTime;
+    logger.error('Error getting travel segment', error instanceof Error ? error : undefined, {
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
     
     if (error instanceof Error && error.message.includes('Token validation failed')) {
+      logger.trackEvent(TelemetryEvents.AUTH_FAILED, { 
+        endpoint: 'getTravelSegment'
+      });
+      logger.trackRequest('GET /api/trips/{tripId}/segments/{segmentId}', request.url, duration, 401, false);
+      
       return {
         status: 401,
         jsonBody: {
@@ -71,6 +107,12 @@ export async function getTravelSegment(request: HttpRequest, context: Invocation
         }
       };
     }
+
+    logger.trackEvent(TelemetryEvents.API_ERROR, { 
+      endpoint: 'getTravelSegment',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
+    logger.trackRequest('GET /api/trips/{tripId}/segments/{segmentId}', request.url, duration, 500, false);
 
     return {
       status: 500,
