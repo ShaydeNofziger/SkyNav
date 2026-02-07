@@ -20,12 +20,20 @@ The API will be organized into the following components:
 - **Storage**: Azure Blob Storage
 - **Authentication**: JWT-based with Azure AD B2C
 
-## API Endpoints (Planned)
+## API Endpoints
 
-### Dropzone Directory
+### Dropzone Directory ✅
 - `GET /api/dropzones` - List all dropzones (paginated)
-- `GET /api/dropzones/:id` - Get dropzone profile
-- `GET /api/dropzones/search` - Search dropzones by name/location
+- `GET /api/dropzones/:id` - Get dropzone details (Planned)
+
+### Trip Management ✅
+- `POST /api/trips` - Create a new trip
+- `GET /api/trips/:id` - Get trip by ID
+
+### User Management ✅
+- `POST /api/users/provision` - Provision user on first login
+- `GET /api/users/me` - Get user profile
+- `PUT /api/users/me` - Update user profile
 
 ### Admin Management
 - `POST /api/admin/dropzones` - Create dropzone

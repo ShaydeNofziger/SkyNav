@@ -20,8 +20,12 @@ This directory contains project documentation for SkyNav.
   - [ADR-001: Backend Technology Selection](./adr/001-backend-technology.md)
   - [ADR-002: Authentication Strategy](./adr/002-authentication-strategy.md)
   - [ADR-003: Data Storage Approach](./adr/003-data-storage-approach.md)
-- **API Documentation**: REST API endpoint specifications (Planned)
-- **Database Schema**: Data models and relationships (Planned)
+- **API Documentation**: REST API endpoint specifications ✅
+  - [Dropzone Directory API](./api/dropzone-directory.md)
+  - [Trip API](./api/trip.md)
+- **Database Schema**: Data models and relationships ✅
+  - [Domain Models](../src/api/src/models/README.md)
+  - [DTOs](../src/api/src/dtos/README.md)
 - **Deployment Guide**: Step-by-step deployment instructions (Planned)
 - **Development Guide**: Setup and development workflow (Planned)
 
