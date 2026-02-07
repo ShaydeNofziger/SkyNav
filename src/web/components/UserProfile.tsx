@@ -129,14 +129,14 @@ export function UserProfile() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">User Profile</h2>
+    <div className="w-full">
+      <div className="bg-white shadow-sm rounded-lg p-4 sm:p-6 border border-gray-200">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
+          <h2 className="text-xl sm:text-2xl font-bold">User Profile</h2>
           {!editing && (
             <button
               onClick={() => setEditing(true)}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm font-medium self-start sm:self-auto"
             >
               Edit Profile
             </button>
@@ -144,30 +144,34 @@ export function UserProfile() {
         </div>
 
         {!editing ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <p className="text-gray-900">{profile.email}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Display Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
               <p className="text-gray-900">{profile.profile.displayName || 'Not set'}</p>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">First Name</label>
-              <p className="text-gray-900">{profile.profile.firstName || 'Not set'}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                <p className="text-gray-900">{profile.profile.firstName || 'Not set'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                <p className="text-gray-900">{profile.profile.lastName || 'Not set'}</p>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Last Name</label>
-              <p className="text-gray-900">{profile.profile.lastName || 'Not set'}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">USPA Number</label>
-              <p className="text-gray-900">{profile.profile.uspaNumber || 'Not set'}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Jump Count</label>
-              <p className="text-gray-900">{profile.profile.jumpCount || 0}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">USPA Number</label>
+                <p className="text-gray-900">{profile.profile.uspaNumber || 'Not set'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Jump Count</label>
+                <p className="text-gray-900">{profile.profile.jumpCount || 0}</p>
+              </div>
             </div>
           </div>
         ) : (
@@ -180,66 +184,70 @@ export function UserProfile() {
                 type="text"
                 value={formData.displayName}
                 onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                First Name
-              </label>
-              <input
-                type="text"
-                value={formData.firstName}
-                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Last Name
-              </label>
-              <input
-                type="text"
-                value={formData.lastName}
-                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  USPA Number
+                </label>
+                <input
+                  type="text"
+                  value={formData.uspaNumber}
+                  onChange={(e) => setFormData({ ...formData, uspaNumber: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Jump Count
+                </label>
+                <input
+                  type="number"
+                  value={formData.jumpCount}
+                  onChange={(e) => setFormData({ ...formData, jumpCount: parseInt(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  min="0"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                USPA Number
-              </label>
-              <input
-                type="text"
-                value={formData.uspaNumber}
-                onChange={(e) => setFormData({ ...formData, uspaNumber: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Jump Count
-              </label>
-              <input
-                type="number"
-                value={formData.jumpCount}
-                onChange={(e) => setFormData({ ...formData, jumpCount: parseInt(e.target.value) || 0 })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                min="0"
-              />
-            </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300"
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 font-medium"
               >
                 Save Changes
               </button>
               <button
                 type="button"
                 onClick={() => setEditing(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
               >
                 Cancel
               </button>
