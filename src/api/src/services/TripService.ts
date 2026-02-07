@@ -107,7 +107,10 @@ export class TripService {
     // Get total count
     const totalCount = trips.length;
 
-    // Apply pagination manually
+    // Apply pagination manually (Cosmos DB serverless doesn't support OFFSET/LIMIT efficiently)
+    // TODO: For production with large datasets, implement continuation token-based pagination
+    // to reduce RU consumption and improve performance. This is acceptable for MVP since
+    // individual users are unlikely to have hundreds of trips (partition scoped to userId).
     const paginatedTrips = trips.slice(offset, offset + pageSize);
 
     // Convert to DTOs

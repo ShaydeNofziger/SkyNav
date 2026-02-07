@@ -42,7 +42,10 @@ function validateCreateTripRequest(body: any): { valid: boolean; error?: string 
   }
 
   // Validate that end date is not before start date
-  if (body.endDate < body.startDate) {
+  const startDateObj = new Date(body.startDate);
+  const endDateObj = new Date(body.endDate);
+  
+  if (endDateObj < startDateObj) {
     return { valid: false, error: 'End date cannot be before start date' };
   }
 
