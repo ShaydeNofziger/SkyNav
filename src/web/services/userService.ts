@@ -4,6 +4,8 @@
  * Handles all user-related API calls
  */
 
+import { handleApiResponse } from '@/lib/apiErrors';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7071/api';
 
 export interface UserProfile {
@@ -47,11 +49,7 @@ export async function provisionUser(accessToken: string): Promise<User> {
     },
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to provision user: ${response.statusText}`);
-  }
-
-  return await response.json();
+  return handleApiResponse<User>(response);
 }
 
 /**
@@ -66,11 +64,7 @@ export async function getUserProfile(accessToken: string): Promise<User> {
     },
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to get user profile: ${response.statusText}`);
-  }
-
-  return await response.json();
+  return handleApiResponse<User>(response);
 }
 
 /**
@@ -89,9 +83,5 @@ export async function updateUserProfile(
     body: JSON.stringify(updates),
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to update user profile: ${response.statusText}`);
-  }
-
-  return await response.json();
+  return handleApiResponse<User>(response);
 }

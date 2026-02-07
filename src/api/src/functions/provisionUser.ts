@@ -9,6 +9,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { validateToken } from '../middleware/auth';
 import { createUserService } from '../services/UserService';
+import { handleAuthError, internalServerError } from '../utils/errorResponse';
 
 export async function provisionUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   try {
@@ -44,22 +45,10 @@ export async function provisionUser(request: HttpRequest, context: InvocationCon
     context.error('Error provisioning user', error);
     
     if (error instanceof Error && error.message.includes('Token validation failed')) {
-      return {
-        status: 401,
-        jsonBody: {
-          error: 'Unauthorized',
-          message: error.message
-        }
-      };
+      return handleAuthError(error);
     }
 
-    return {
-      status: 500,
-      jsonBody: {
-        error: 'Internal server error',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      }
-    };
+    return internalServerError('Failed to provision user. Please try signing in again.');
   }
 }
 

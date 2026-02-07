@@ -10,46 +10,83 @@ import { validateToken } from '../middleware/auth';
 import { createTripService } from '../services/TripService';
 import { CreateTravelSegmentDTO, toTravelSegmentDetailDTO } from '../dtos/TravelSegmentDTO';
 import { TravelSegmentType } from '../models/TravelSegment';
+import { 
+  badRequest, 
+  notFound, 
+  internalServerError,
+  handleAuthError,
+  validationError,
+  parseRequestBody
+} from '../utils/errorResponse';
+import { 
+  isValidDateFormat, 
+  isValidDateRange,
+  validateFlightDetails,
+  validateDriveDetails,
+  validateLodgingDetails
+} from '../utils/validation';
 
 /**
  * Validate create travel segment request body
  */
-function validateCreateSegmentRequest(body: any): { valid: boolean; error?: string } {
+function validateCreateSegmentRequest(body: any): { valid: boolean; error?: string; details?: Record<string, string> } {
   if (!body) {
     return { valid: false, error: 'Request body is required' };
   }
 
+  const errors: Record<string, string> = {};
+
   if (!body.type || !Object.values(TravelSegmentType).includes(body.type)) {
-    return { valid: false, error: 'Valid segment type is required (flight, drive, lodging)' };
+    errors.type = 'Valid segment type is required (flight, drive, lodging)';
   }
 
   if (!body.startDate || typeof body.startDate !== 'string') {
-    return { valid: false, error: 'Start date is required (ISO 8601 format)' };
+    errors.startDate = 'Start date is required (ISO 8601 format: YYYY-MM-DD)';
+  } else if (!isValidDateFormat(body.startDate)) {
+    errors.startDate = 'Invalid start date format (expected: YYYY-MM-DD)';
   }
 
   if (!body.endDate || typeof body.endDate !== 'string') {
-    return { valid: false, error: 'End date is required (ISO 8601 format)' };
+    errors.endDate = 'End date is required (ISO 8601 format: YYYY-MM-DD)';
+  } else if (!isValidDateFormat(body.endDate)) {
+    errors.endDate = 'Invalid end date format (expected: YYYY-MM-DD)';
   }
 
-  // Validate that end date is not before start date
-  const startDateObj = new Date(body.startDate);
-  const endDateObj = new Date(body.endDate);
-  
-  if (endDateObj < startDateObj) {
-    return { valid: false, error: 'End date cannot be before start date' };
+  // Validate date range if both dates are valid
+  if (body.startDate && body.endDate && isValidDateFormat(body.startDate) && isValidDateFormat(body.endDate)) {
+    if (!isValidDateRange(body.startDate, body.endDate)) {
+      errors.endDate = 'End date cannot be before start date';
+    }
   }
 
   // Type-specific validation
   if (body.type === TravelSegmentType.FLIGHT && body.flightDetails) {
-    // Optional: validate flight details if provided
+    const flightValidation = validateFlightDetails(body.flightDetails);
+    if (!flightValidation.valid && flightValidation.errors) {
+      Object.assign(errors, flightValidation.errors);
+    }
   }
 
   if (body.type === TravelSegmentType.DRIVE && body.driveDetails) {
-    // Optional: validate drive details if provided
+    const driveValidation = validateDriveDetails(body.driveDetails);
+    if (!driveValidation.valid && driveValidation.errors) {
+      Object.assign(errors, driveValidation.errors);
+    }
   }
 
   if (body.type === TravelSegmentType.LODGING && body.lodgingDetails) {
-    // Optional: validate lodging details if provided
+    const lodgingValidation = validateLodgingDetails(body.lodgingDetails);
+    if (!lodgingValidation.valid && lodgingValidation.errors) {
+      Object.assign(errors, lodgingValidation.errors);
+    }
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return {
+      valid: false,
+      error: 'Invalid segment data',
+      details: errors
+    };
   }
 
   return { valid: true };
@@ -64,27 +101,23 @@ export async function createTravelSegment(request: HttpRequest, context: Invocat
     const tripId = request.params.tripId;
     
     if (!tripId) {
-      return {
-        status: 400,
-        jsonBody: {
-          error: 'Invalid request',
-          message: 'Trip ID is required'
-        }
-      };
+      return badRequest('Trip ID is required');
     }
 
     // Parse and validate request body
-    const body = await request.json() as CreateTravelSegmentDTO;
+    const parseResult = await parseRequestBody<CreateTravelSegmentDTO>(request);
+    if (!parseResult.success) {
+      return parseResult.response;
+    }
+    
+    const body = parseResult.data;
     const validation = validateCreateSegmentRequest(body);
     
     if (!validation.valid) {
-      return {
-        status: 400,
-        jsonBody: {
-          error: 'Invalid request',
-          message: validation.error
-        }
-      };
+      if (validation.details) {
+        return validationError(validation.error || 'Invalid segment data', validation.details);
+      }
+      return badRequest(validation.error || 'Invalid segment data');
     }
 
     // Add travel segment to trip
@@ -103,32 +136,14 @@ export async function createTravelSegment(request: HttpRequest, context: Invocat
     context.error('Error creating travel segment', error);
     
     if (error instanceof Error && error.message.includes('Token validation failed')) {
-      return {
-        status: 401,
-        jsonBody: {
-          error: 'Unauthorized',
-          message: error.message
-        }
-      };
+      return handleAuthError(error);
     }
 
     if (error instanceof Error && error.message === 'Trip not found') {
-      return {
-        status: 404,
-        jsonBody: {
-          error: 'Trip not found',
-          message: 'The specified trip was not found or does not belong to the authenticated user'
-        }
-      };
+      return notFound('The specified trip was not found or does not belong to you');
     }
 
-    return {
-      status: 500,
-      jsonBody: {
-        error: 'Internal server error',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      }
-    };
+    return internalServerError();
   }
 }
 

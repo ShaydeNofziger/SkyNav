@@ -4,6 +4,8 @@
  * Handles all trip-related API calls
  */
 
+import { handleApiResponse } from '@/lib/apiErrors';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7071/api';
 
 export enum TripStatus {
@@ -132,11 +134,7 @@ export async function listTrips(
     },
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to list trips: ${response.statusText}`);
-  }
-
-  return await response.json();
+  return handleApiResponse<TripListResponse>(response);
 }
 
 /**
@@ -151,11 +149,7 @@ export async function getTrip(accessToken: string, tripId: string): Promise<Trip
     },
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to get trip: ${response.statusText}`);
-  }
-
-  return await response.json();
+  return handleApiResponse<TripDetail>(response);
 }
 
 /**
@@ -174,11 +168,7 @@ export async function createTrip(
     body: JSON.stringify(trip),
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to create trip: ${response.statusText}`);
-  }
-
-  return await response.json();
+  return handleApiResponse<TripDetail>(response);
 }
 
 /**
@@ -198,11 +188,7 @@ export async function updateTrip(
     body: JSON.stringify(updates),
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to update trip: ${response.statusText}`);
-  }
-
-  return await response.json();
+  return handleApiResponse<TripDetail>(response);
 }
 
 /**
@@ -217,7 +203,5 @@ export async function deleteTrip(accessToken: string, tripId: string): Promise<v
     },
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to delete trip: ${response.statusText}`);
-  }
+  return handleApiResponse<void>(response);
 }

@@ -7,6 +7,7 @@ import { TripCard, TripForm } from "@/components/Trip";
 import { useState, useEffect } from "react";
 import { listTrips, createTrip, TripSummary, CreateTripRequest } from "@/services/tripService";
 import { useRouter } from "next/navigation";
+import { getUserFriendlyErrorMessage } from "@/lib/apiErrors";
 
 export default function TripsPage() {
   const { isAuthenticated, login, getAccessToken } = useAuth();
@@ -29,14 +30,14 @@ export default function TripsPage() {
       setError(null);
       const token = await getAccessToken();
       if (!token) {
-        setError('Unable to get access token');
+        setError('Unable to get access token. Please sign in again.');
         return;
       }
       const response = await listTrips(token);
       setTrips(response.trips);
     } catch (err) {
       console.error('Error loading trips:', err);
-      setError('Failed to load trips. Please try again.');
+      setError(getUserFriendlyErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -48,7 +49,7 @@ export default function TripsPage() {
       setError(null);
       const token = await getAccessToken();
       if (!token) {
-        setError('Unable to get access token');
+        setError('Unable to get access token. Please sign in again.');
         return;
       }
       const newTrip = await createTrip(token, data);
@@ -57,7 +58,7 @@ export default function TripsPage() {
       router.push(`/trips/${newTrip.id}`);
     } catch (err) {
       console.error('Error creating trip:', err);
-      setError('Failed to create trip. Please try again.');
+      setError(getUserFriendlyErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }
