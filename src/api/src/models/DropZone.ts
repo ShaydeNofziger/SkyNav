@@ -76,6 +76,7 @@ export interface DropZone {
   
   // Operations
   operatingHours?: OperatingHours;
+  seasonality?: string; // Seasonal operation notes (e.g., "Open April-October", "Year-round weather permitting")
   isActive: boolean; // Whether DZ is currently operational
   
   // Metadata

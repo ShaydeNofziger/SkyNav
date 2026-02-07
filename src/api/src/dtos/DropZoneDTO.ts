@@ -21,6 +21,7 @@ export interface DropZoneSummaryDTO {
   country: string;
   maxAltitude: number;
   aircraft: string[];
+  seasonality?: string;
   isActive: boolean;
   distance?: number; // Distance in meters (when searching by location)
 }
@@ -39,6 +40,7 @@ export interface DropZoneDetailDTO {
   email?: string;
   website?: string;
   facilities: Facilities;
+  seasonality?: string;
   isActive: boolean;
   landingAreaId?: string;
   createdAt: string;
@@ -101,6 +103,7 @@ export function toDropZoneSummaryDTO(dropzone: DropZone, distance?: number): Dro
     country: dropzone.address.country,
     maxAltitude: dropzone.facilities.maxAltitude,
     aircraft: dropzone.facilities.aircraft,
+    seasonality: dropzone.seasonality,
     isActive: dropzone.isActive,
     distance,
   };
@@ -121,6 +124,7 @@ export function toDropZoneDetailDTO(dropzone: DropZone): DropZoneDetailDTO {
     email: dropzone.email,
     website: dropzone.website,
     facilities: dropzone.facilities,
+    seasonality: dropzone.seasonality,
     isActive: dropzone.isActive,
     landingAreaId: dropzone.landingAreaId,
     createdAt: dropzone.createdAt,
