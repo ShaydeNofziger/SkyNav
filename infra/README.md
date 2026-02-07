@@ -20,7 +20,8 @@ SkyNav uses a serverless architecture on Azure with the following components:
 infra/
 ├── config/                    # Configuration files
 │   ├── parameters.json              # Default parameters template
-│   └── local.parameters.example.json # Local config example (copy to local.parameters.json)
+│   ├── local.parameters.example.json # Local config example (with comments)
+│   └── local.parameters.template.json # Local config template (copy to local.parameters.json)
 └── scripts/                   # PowerShell deployment scripts
     ├── deploy.ps1                   # Main orchestration script
     ├── create-resource-group.ps1    # Create Azure Resource Group

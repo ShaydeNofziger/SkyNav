@@ -80,7 +80,8 @@ Or via Azure Portal:
 ### Configuration Files
 
 - **Local Development**: `src/api/local.settings.json` (git-ignored)
-- **Example Template**: `src/api/local.settings.example.json` (committed to repo)
+- **Example Template (with comments)**: `src/api/local.settings.example.json` (for reference)
+- **JSON Template (no comments)**: `src/api/local.settings.template.json` (ready to copy)
 - **Production**: Configure via Azure Function App settings
 
 ### Required Variables
@@ -109,10 +110,10 @@ Or via Azure Portal:
 
 ### Local Development Setup
 
-1. Copy the example file:
+1. Copy the template file:
    ```bash
    cd src/api
-   cp local.settings.example.json local.settings.json
+   cp local.settings.template.json local.settings.json
    ```
 
 2. Update values in `local.settings.json`:

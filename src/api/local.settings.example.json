@@ -1,5 +1,15 @@
-# Azure Function App Environment Variables
-# Copy this file to local.settings.json for local development
+# Azure Function App Environment Variables - Example Configuration
+# 
+# This is an EXAMPLE file showing the structure for local.settings.json
+# JSON files cannot contain comments, so this file uses .example extension
+# 
+# To use:
+# 1. Copy this file to local.settings.json
+# 2. Remove all comment lines (lines starting with #)
+# 3. Update values with your actual configuration
+# 4. local.settings.json is git-ignored and will not be committed
+
+# Example structure (remove comments when copying):
 
 {
   "IsEncrypted": false,
@@ -7,26 +17,21 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "node",
     
-    # Azure Cosmos DB
     "COSMOS_DB_ENDPOINT": "https://localhost:8081",
     "COSMOS_DB_KEY": "C2y6yDjf5/R+ob0N8A7Cgv3ZHhYDjUsbi3n8ixjOlH6l/gIx4s0lHJRsYPmZdP8M9xDHN8xXL6KfYd3vX7LJzA==",
     "COSMOS_DB_DATABASE_NAME": "SkyNavDB",
     
-    # Azure AD B2C
     "AZURE_AD_B2C_TENANT_NAME": "your-tenant-name",
     "AZURE_AD_B2C_TENANT_ID": "your-tenant-id",
     "AZURE_AD_B2C_CLIENT_ID": "your-client-id",
     "AZURE_AD_B2C_CLIENT_SECRET": "your-client-secret",
     "AZURE_AD_B2C_POLICY_NAME": "B2C_1_signupsignin",
     
-    # Application Insights (optional for local dev)
     "APPINSIGHTS_INSTRUMENTATIONKEY": "",
     "APPLICATIONINSIGHTS_CONNECTION_STRING": "",
     
-    # CORS (allow all origins in local dev)
     "CORS_ALLOWED_ORIGINS": "*",
     
-    # Optional: Azure Maps (if used server-side)
     "AZURE_MAPS_SUBSCRIPTION_KEY": "your-azure-maps-key"
   },
   "Host": {
@@ -36,8 +41,9 @@
   }
 }
 
-# Production Configuration (set via Azure Portal or CLI)
-# --------------------------------------------------------
+# =============================================================================
+# PRODUCTION CONFIGURATION
+# =============================================================================
 # For cloud deployment, set these environment variables in Azure Function App:
 #
 # COSMOS_DB_ENDPOINT=https://cosmos-skynav-prod.documents.azure.com:443/
@@ -50,3 +56,4 @@
 # AZURE_AD_B2C_POLICY_NAME=B2C_1_signupsignin
 # APPINSIGHTS_INSTRUMENTATIONKEY=<your-instrumentation-key>
 # CORS_ALLOWED_ORIGINS=https://your-static-web-app.azurestaticapps.net
+

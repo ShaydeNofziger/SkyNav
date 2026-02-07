@@ -35,7 +35,7 @@ if ($rgExists -eq 'true') {
   
   az group update `
     --name $ResourceGroupName `
-    --tags project=SkyNav environment=$Environment deployedBy=PowerShell `
+    --tags project=SkyNav deployedBy=PowerShell `
     --output none
   
   Write-Host "✓ Resource group updated" -ForegroundColor Green
@@ -45,7 +45,7 @@ if ($rgExists -eq 'true') {
   az group create `
     --name $ResourceGroupName `
     --location $Location `
-    --tags project=SkyNav environment=$Environment deployedBy=PowerShell `
+    --tags project=SkyNav deployedBy=PowerShell `
     --output none
   
   if ($LASTEXITCODE -eq 0) {
