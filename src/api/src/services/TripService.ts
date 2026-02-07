@@ -190,6 +190,10 @@ export class TripService {
       throw new Error('Trip not found');
     }
 
+    // Track if dates are being updated for validation
+    let startDate = trip.startDate;
+    let endDate = trip.endDate;
+
     // Update fields
     if (updates.name !== undefined) {
       trip.name = updates.name;
@@ -201,13 +205,22 @@ export class TripService {
       trip.status = updates.status;
     }
     if (updates.startDate !== undefined) {
+      startDate = updates.startDate;
       trip.startDate = updates.startDate;
     }
     if (updates.endDate !== undefined) {
+      endDate = updates.endDate;
       trip.endDate = updates.endDate;
     }
     if (updates.notes !== undefined) {
       trip.notes = updates.notes;
+    }
+
+    // Validate date range after updates
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+    if (endDateObj < startDateObj) {
+      throw new Error('End date cannot be before start date');
     }
 
     // Update metadata
