@@ -1,9 +1,18 @@
 /**
  * TravelSegment Domain Model
  * 
- * Represents a single visit to a dropzone within a trip.
- * Contains information about the planned visit, jump goals, and notes.
+ * Represents travel logistics for a trip: flights, drives, or lodging.
+ * Embedded within Trip documents.
  */
+
+/**
+ * Type of travel segment
+ */
+export enum TravelSegmentType {
+  FLIGHT = 'flight',
+  DRIVE = 'drive',
+  LODGING = 'lodging',
+}
 
 /**
  * Type of jumps planned for this segment
@@ -19,7 +28,28 @@ export enum JumpType {
 }
 
 /**
- * Accommodation information for the segment
+ * Flight details
+ */
+export interface FlightDetails {
+  airline?: string;
+  flightNumber?: string;
+  departureAirport?: string;
+  arrivalAirport?: string;
+  confirmationNumber?: string;
+}
+
+/**
+ * Drive details
+ */
+export interface DriveDetails {
+  departureLocation?: string;
+  arrivalLocation?: string;
+  distance?: number; // in miles
+  estimatedDuration?: number; // in hours
+}
+
+/**
+ * Accommodation information for lodging segments
  */
 export interface Accommodation {
   type: 'hotel' | 'bunkhouse' | 'camping' | 'other';
@@ -32,34 +62,37 @@ export interface Accommodation {
 /**
  * Main TravelSegment domain model
  * 
- * Embedded within Trip documents, representing a visit to a specific dropzone.
+ * Embedded within Trip documents, representing travel logistics.
  * Not a separate Cosmos DB container - these are nested within Trip documents.
  */
 export interface TravelSegment {
   // Identifier (unique within the trip)
   id: string; // Format: "seg-{guid}"
   
-  // Dropzone reference
-  dropzoneId: string; // Reference to DropZone.id
+  // Type of travel segment
+  type: TravelSegmentType;
+  
+  // Common fields
+  startDate: string; // ISO 8601 date (YYYY-MM-DD) or datetime
+  endDate: string; // ISO 8601 date (YYYY-MM-DD) or datetime
+  
+  // Type-specific details (only one will be populated based on type)
+  flightDetails?: FlightDetails;
+  driveDetails?: DriveDetails;
+  lodgingDetails?: Accommodation;
+  
+  // Optional dropzone reference (for lodging near dropzones)
+  dropzoneId?: string; // Reference to DropZone.id
   dropzoneName?: string; // Denormalized for display (reduces queries)
   
-  // Visit dates
-  arrivalDate: string; // ISO 8601 date (YYYY-MM-DD)
-  departureDate: string; // ISO 8601 date (YYYY-MM-DD)
-  
-  // Jump planning
+  // Jump planning (for dropzone-related segments)
   plannedJumpCount?: number;
   actualJumpCount?: number;
-  jumpTypes: JumpType[];
+  jumpTypes?: JumpType[];
   jumpGoals?: string; // User-defined goals (e.g., "Complete 10-way formations")
   
-  // Accommodation
-  accommodation?: Accommodation;
-  
-  // Notes and preparation
-  notes?: string; // User's notes about this visit
-  weatherNotes?: string;
-  specialRequests?: string; // e.g., "Need rental rig"
+  // Notes
+  notes?: string; // User's notes about this segment
   
   // Status
   completed: boolean;
@@ -79,11 +112,10 @@ export function isTravelSegment(obj: unknown): obj is TravelSegment {
     segment !== null &&
     typeof segment.id === 'string' &&
     segment.id.startsWith('seg-') &&
-    typeof segment.dropzoneId === 'string' &&
-    segment.dropzoneId.startsWith('dz-') &&
-    typeof segment.arrivalDate === 'string' &&
-    typeof segment.departureDate === 'string' &&
-    Array.isArray(segment.jumpTypes) &&
+    typeof segment.type === 'string' &&
+    Object.values(TravelSegmentType).includes(segment.type as TravelSegmentType) &&
+    typeof segment.startDate === 'string' &&
+    typeof segment.endDate === 'string' &&
     typeof segment.completed === 'boolean'
   );
 }

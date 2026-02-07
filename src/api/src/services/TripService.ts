@@ -5,6 +5,7 @@
 import { CosmosClient, Container, SqlQuerySpec } from '@azure/cosmos';
 import { randomUUID } from 'crypto';
 import { Trip, TripStatus, ChecklistItem, DEFAULT_TRIP_CHECKLIST } from '../models/Trip';
+import { TravelSegment, TravelSegmentType, FlightDetails, DriveDetails, Accommodation, JumpType } from '../models/TravelSegment';
 import { TripSummaryDTO, TripDetailDTO, toTripSummaryDTO, toTripDetailDTO, CreateTripDTO } from '../dtos/TripDTO';
 
 /**
@@ -243,6 +244,193 @@ export class TripService {
    */
   async deleteTrip(tripId: string, userId: string): Promise<void> {
     await this.container.item(tripId, userId).delete();
+  }
+
+  /**
+   * Add a travel segment to a trip
+   * 
+   * @param tripId - Trip ID
+   * @param userId - User ID (partition key)
+   * @param segment - Travel segment to add
+   * @returns Updated trip
+   */
+  async addTravelSegment(
+    tripId: string,
+    userId: string,
+    segment: {
+      type: TravelSegmentType;
+      startDate: string;
+      endDate: string;
+      flightDetails?: FlightDetails;
+      driveDetails?: DriveDetails;
+      lodgingDetails?: Accommodation;
+      dropzoneId?: string;
+      plannedJumpCount?: number;
+      jumpTypes?: JumpType[];
+      jumpGoals?: string;
+      notes?: string;
+    }
+  ): Promise<Trip> {
+    const trip = await this.getTripById(tripId, userId);
+    if (!trip) {
+      throw new Error('Trip not found');
+    }
+
+    const now = new Date().toISOString();
+    const newSegment: TravelSegment = {
+      id: `seg-${randomUUID()}`,
+      type: segment.type,
+      startDate: segment.startDate,
+      endDate: segment.endDate,
+      flightDetails: segment.flightDetails,
+      driveDetails: segment.driveDetails,
+      lodgingDetails: segment.lodgingDetails,
+      dropzoneId: segment.dropzoneId,
+      dropzoneName: undefined, // Will be populated if dropzoneId is provided
+      plannedJumpCount: segment.plannedJumpCount,
+      actualJumpCount: undefined,
+      jumpTypes: segment.jumpTypes,
+      jumpGoals: segment.jumpGoals,
+      notes: segment.notes,
+      completed: false,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    // If dropzoneId is provided, we could fetch the dropzone name here
+    // For MVP, we'll leave it undefined and populate it in the API function if needed
+
+    trip.segments.push(newSegment);
+    trip.updatedAt = now;
+
+    const { resource } = await this.container.items.upsert<Trip>(trip);
+    if (!resource) {
+      throw new Error('Failed to add travel segment');
+    }
+    
+    return resource;
+  }
+
+  /**
+   * Update a travel segment in a trip
+   * 
+   * @param tripId - Trip ID
+   * @param userId - User ID (partition key)
+   * @param segmentId - Travel segment ID
+   * @param updates - Partial segment updates
+   * @returns Updated trip
+   */
+  async updateTravelSegment(
+    tripId: string,
+    userId: string,
+    segmentId: string,
+    updates: {
+      startDate?: string;
+      endDate?: string;
+      flightDetails?: FlightDetails;
+      driveDetails?: DriveDetails;
+      lodgingDetails?: Accommodation;
+      dropzoneId?: string;
+      plannedJumpCount?: number;
+      actualJumpCount?: number;
+      jumpTypes?: JumpType[];
+      jumpGoals?: string;
+      notes?: string;
+      completed?: boolean;
+    }
+  ): Promise<Trip> {
+    const trip = await this.getTripById(tripId, userId);
+    if (!trip) {
+      throw new Error('Trip not found');
+    }
+
+    const segmentIndex = trip.segments.findIndex(s => s.id === segmentId);
+    if (segmentIndex === -1) {
+      throw new Error('Travel segment not found');
+    }
+
+    const segment = trip.segments[segmentIndex];
+    const now = new Date().toISOString();
+
+    // Update fields
+    if (updates.startDate !== undefined) segment.startDate = updates.startDate;
+    if (updates.endDate !== undefined) segment.endDate = updates.endDate;
+    if (updates.flightDetails !== undefined) segment.flightDetails = updates.flightDetails;
+    if (updates.driveDetails !== undefined) segment.driveDetails = updates.driveDetails;
+    if (updates.lodgingDetails !== undefined) segment.lodgingDetails = updates.lodgingDetails;
+    if (updates.dropzoneId !== undefined) segment.dropzoneId = updates.dropzoneId;
+    if (updates.plannedJumpCount !== undefined) segment.plannedJumpCount = updates.plannedJumpCount;
+    if (updates.actualJumpCount !== undefined) segment.actualJumpCount = updates.actualJumpCount;
+    if (updates.jumpTypes !== undefined) segment.jumpTypes = updates.jumpTypes;
+    if (updates.jumpGoals !== undefined) segment.jumpGoals = updates.jumpGoals;
+    if (updates.notes !== undefined) segment.notes = updates.notes;
+    if (updates.completed !== undefined) segment.completed = updates.completed;
+
+    segment.updatedAt = now;
+    trip.updatedAt = now;
+
+    const { resource } = await this.container.items.upsert<Trip>(trip);
+    if (!resource) {
+      throw new Error('Failed to update travel segment');
+    }
+    
+    return resource;
+  }
+
+  /**
+   * Delete a travel segment from a trip
+   * 
+   * @param tripId - Trip ID
+   * @param userId - User ID (partition key)
+   * @param segmentId - Travel segment ID
+   * @returns Updated trip
+   */
+  async deleteTravelSegment(
+    tripId: string,
+    userId: string,
+    segmentId: string
+  ): Promise<Trip> {
+    const trip = await this.getTripById(tripId, userId);
+    if (!trip) {
+      throw new Error('Trip not found');
+    }
+
+    const segmentIndex = trip.segments.findIndex(s => s.id === segmentId);
+    if (segmentIndex === -1) {
+      throw new Error('Travel segment not found');
+    }
+
+    trip.segments.splice(segmentIndex, 1);
+    trip.updatedAt = new Date().toISOString();
+
+    const { resource } = await this.container.items.upsert<Trip>(trip);
+    if (!resource) {
+      throw new Error('Failed to delete travel segment');
+    }
+    
+    return resource;
+  }
+
+  /**
+   * Get a specific travel segment from a trip
+   * 
+   * @param tripId - Trip ID
+   * @param userId - User ID (partition key)
+   * @param segmentId - Travel segment ID
+   * @returns Travel segment or null if not found
+   */
+  async getTravelSegment(
+    tripId: string,
+    userId: string,
+    segmentId: string
+  ): Promise<TravelSegment | null> {
+    const trip = await this.getTripById(tripId, userId);
+    if (!trip) {
+      return null;
+    }
+
+    const segment = trip.segments.find(s => s.id === segmentId);
+    return segment || null;
   }
 }
 

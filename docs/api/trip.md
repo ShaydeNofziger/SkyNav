@@ -337,6 +337,276 @@ curl https://api.skynav.example.com/api/trips/trip-550e8400-e29b-41d4-a716-44665
 
 ---
 
+## Travel Segment Management
+
+The following endpoints are available for managing travel segments (flights, drives, lodging) within trips:
+
+### Create Travel Segment
+
+```
+POST /api/trips/{tripId}/segments
+```
+
+Adds a new travel segment to a trip. Travel segments represent the logistics of a trip: flights, drives, or lodging arrangements.
+
+#### Request Headers
+
+| Header | Required | Description |
+|--------|----------|-------------|
+| `Authorization` | Yes | Bearer token from Azure AD B2C |
+| `Content-Type` | Yes | Must be `application/json` |
+
+#### URL Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `tripId` | string | Trip ID (format: `trip-{uuid}`) |
+
+#### Request Body
+
+```json
+{
+  "type": "flight",
+  "startDate": "2026-03-15T08:00:00Z",
+  "endDate": "2026-03-15T12:30:00Z",
+  "flightDetails": {
+    "airline": "Southwest Airlines",
+    "flightNumber": "WN1234",
+    "departureAirport": "LAX",
+    "arrivalAirport": "PHX",
+    "confirmationNumber": "ABC123"
+  },
+  "notes": "Window seat preferred"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `type` | string | Yes | Segment type: `flight`, `drive`, or `lodging` |
+| `startDate` | string | Yes | Segment start date/time (ISO 8601) |
+| `endDate` | string | Yes | Segment end date/time (ISO 8601) |
+| `flightDetails` | object | No | Flight details (required when type=flight) |
+| `driveDetails` | object | No | Drive details (required when type=drive) |
+| `lodgingDetails` | object | No | Lodging details (required when type=lodging) |
+| `dropzoneId` | string | No | Associated dropzone ID |
+| `plannedJumpCount` | number | No | Planned jumps during this segment |
+| `jumpTypes` | array | No | Types of jumps planned |
+| `jumpGoals` | string | No | Jump goals description |
+| `notes` | string | No | General notes |
+
+#### Flight Details Object
+
+```json
+{
+  "airline": "Southwest Airlines",
+  "flightNumber": "WN1234",
+  "departureAirport": "LAX",
+  "arrivalAirport": "PHX",
+  "confirmationNumber": "ABC123"
+}
+```
+
+#### Drive Details Object
+
+```json
+{
+  "departureLocation": "Los Angeles, CA",
+  "arrivalLocation": "Phoenix, AZ",
+  "distance": 373,
+  "estimatedDuration": 5.5
+}
+```
+
+#### Lodging Details Object
+
+```json
+{
+  "type": "hotel",
+  "name": "Holiday Inn Phoenix",
+  "address": "123 Main St, Phoenix, AZ 85001",
+  "confirmationNumber": "HIX789",
+  "notes": "King bed requested"
+}
+```
+
+#### Response (201 Created)
+
+```json
+{
+  "id": "seg-12345678-1234-1234-1234-123456789012",
+  "type": "flight",
+  "startDate": "2026-03-15T08:00:00Z",
+  "endDate": "2026-03-15T12:30:00Z",
+  "flightDetails": {
+    "airline": "Southwest Airlines",
+    "flightNumber": "WN1234",
+    "departureAirport": "LAX",
+    "arrivalAirport": "PHX",
+    "confirmationNumber": "ABC123"
+  },
+  "notes": "Window seat preferred",
+  "completed": false,
+  "createdAt": "2026-02-07T22:00:00.000Z",
+  "updatedAt": "2026-02-07T22:00:00.000Z"
+}
+```
+
+---
+
+### Get Travel Segment
+
+```
+GET /api/trips/{tripId}/segments/{segmentId}
+```
+
+Retrieves a specific travel segment from a trip.
+
+#### Request Headers
+
+| Header | Required | Description |
+|--------|----------|-------------|
+| `Authorization` | Yes | Bearer token from Azure AD B2C |
+
+#### URL Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `tripId` | string | Trip ID (format: `trip-{uuid}`) |
+| `segmentId` | string | Segment ID (format: `seg-{uuid}`) |
+
+#### Response (200 OK)
+
+Returns the travel segment object (same structure as Create response).
+
+---
+
+### Update Travel Segment
+
+```
+PUT /api/trips/{tripId}/segments/{segmentId}
+```
+
+Updates an existing travel segment. Only provided fields will be updated.
+
+#### Request Headers
+
+| Header | Required | Description |
+|--------|----------|-------------|
+| `Authorization` | Yes | Bearer token from Azure AD B2C |
+| `Content-Type` | Yes | Must be `application/json` |
+
+#### URL Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `tripId` | string | Trip ID (format: `trip-{uuid}`) |
+| `segmentId` | string | Segment ID (format: `seg-{uuid}`) |
+
+#### Request Body
+
+Partial update - include only fields to update:
+
+```json
+{
+  "completed": true,
+  "actualJumpCount": 8,
+  "notes": "Great weather, completed all planned jumps!"
+}
+```
+
+#### Response (200 OK)
+
+Returns the updated travel segment object.
+
+---
+
+### Delete Travel Segment
+
+```
+DELETE /api/trips/{tripId}/segments/{segmentId}
+```
+
+Removes a travel segment from a trip.
+
+#### Request Headers
+
+| Header | Required | Description |
+|--------|----------|-------------|
+| `Authorization` | Yes | Bearer token from Azure AD B2C |
+
+#### URL Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `tripId` | string | Trip ID (format: `trip-{uuid}`) |
+| `segmentId` | string | Segment ID (format: `seg-{uuid}`) |
+
+#### Response (204 No Content)
+
+Returns empty body on successful deletion.
+
+---
+
+## Travel Segment Types
+
+### TravelSegmentType Enum
+
+- `flight` - Air travel segment
+- `drive` - Ground transportation segment
+- `lodging` - Accommodation segment
+
+### Example Use Cases
+
+**Flight Segment**
+```json
+{
+  "type": "flight",
+  "startDate": "2026-03-15T08:00:00Z",
+  "endDate": "2026-03-15T12:30:00Z",
+  "flightDetails": {
+    "airline": "Southwest Airlines",
+    "flightNumber": "WN1234",
+    "departureAirport": "LAX",
+    "arrivalAirport": "PHX",
+    "confirmationNumber": "ABC123"
+  }
+}
+```
+
+**Drive Segment**
+```json
+{
+  "type": "drive",
+  "startDate": "2026-03-15T14:00:00Z",
+  "endDate": "2026-03-15T19:30:00Z",
+  "driveDetails": {
+    "departureLocation": "Phoenix Sky Harbor Airport",
+    "arrivalLocation": "Skydive Arizona",
+    "distance": 65,
+    "estimatedDuration": 1
+  }
+}
+```
+
+**Lodging Segment**
+```json
+{
+  "type": "lodging",
+  "startDate": "2026-03-15",
+  "endDate": "2026-03-22",
+  "lodgingDetails": {
+    "type": "bunkhouse",
+    "name": "DZ Bunkhouse",
+    "confirmationNumber": "BH2026-123"
+  },
+  "dropzoneId": "dz-12345678-1234-1234-1234-123456789012",
+  "plannedJumpCount": 50,
+  "jumpTypes": ["fun", "training"]
+}
+```
+
+---
+
 ## Future Enhancements
 
 The following features are planned for future releases:
@@ -345,11 +615,8 @@ The following features are planned for future releases:
 - **PUT /api/trips/{id}** - Update trip details
 - **DELETE /api/trips/{id}** - Delete a trip
 - **PATCH /api/trips/{id}/checklist** - Update checklist items
-- **POST /api/trips/{id}/segments** - Add a travel segment (dropzone visit)
-- **PUT /api/trips/{id}/segments/{segmentId}** - Update a travel segment
-- **DELETE /api/trips/{id}/segments/{segmentId}** - Remove a travel segment
 
 ---
 
 **Last Updated:** February 7, 2026  
-**Status:** ✅ MVP Core Complete (Create & Read)
+**Status:** ✅ MVP Core Complete (Trip CRUD + Travel Segment CRUD)
