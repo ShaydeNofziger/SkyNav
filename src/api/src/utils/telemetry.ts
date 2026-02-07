@@ -5,7 +5,7 @@
 
 import { InvocationContext } from '@azure/functions';
 import * as appInsights from 'applicationinsights';
-import { KnownSeverityLevel } from 'applicationinsights/out/src/declarations/generated';
+import { KnownSeverityLevel } from 'applicationinsights';
 
 // Initialize Application Insights if connection string is provided
 let appInsightsClient: appInsights.TelemetryClient | null = null;

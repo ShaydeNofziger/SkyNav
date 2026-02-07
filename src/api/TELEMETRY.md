@@ -41,6 +41,8 @@ az monitor app-insights component show \
 
 Add the Application Insights connection string to your environment variables:
 
+**⚠️ SECURITY WARNING**: Never commit connection strings or instrumentation keys to source control. Always use environment variables or Azure Key Vault for secrets management.
+
 **For local development** (`local.settings.json`):
 ```json
 {
@@ -50,6 +52,8 @@ Add the Application Insights connection string to your environment variables:
   }
 }
 ```
+
+**Important**: Ensure `local.settings.json` is in your `.gitignore` file.
 
 **For Azure Functions deployment**:
 ```bash
@@ -252,8 +256,10 @@ The Application Insights configuration is managed in `host.json`:
 
 Sampling is enabled to reduce telemetry volume and costs:
 - Default: 20 telemetry items per second
-- Requests are excluded from sampling to ensure all API calls are tracked
+- All telemetry types are subject to sampling
 - Adjust `maxTelemetryItemsPerSecond` based on your application's scale
+
+**Note**: To exclude specific telemetry types from sampling, add an `excludedTypes` property to the sampling settings in `host.json`. Example: `"excludedTypes": "Request"` would exclude HTTP requests from sampling.
 
 ## Troubleshooting
 
