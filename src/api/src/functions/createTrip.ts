@@ -10,6 +10,7 @@ import { validateToken } from '../middleware/auth';
 import { createTripService } from '../services/TripService';
 import { CreateTripDTO } from '../dtos/TripDTO';
 import { toTripDetailDTO } from '../dtos/TripDTO';
+import { createLogger, TelemetryEvents } from '../utils/telemetry';
 
 /**
  * Validate create trip request body
@@ -53,15 +54,25 @@ function validateCreateTripRequest(body: any): { valid: boolean; error?: string 
 }
 
 export async function createTrip(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+  const startTime = Date.now();
+  const logger = createLogger(context, 'createTrip');
+  
   try {
     // Validate JWT token
     const user = await validateToken(request, context);
+    logger.info('User authenticated', { userId: user.userId });
     
     // Parse and validate request body
     const body = await request.json() as CreateTripDTO;
     const validation = validateCreateTripRequest(body);
     
     if (!validation.valid) {
+      logger.warn('Validation failed', { error: validation.error || 'Unknown validation error' });
+      logger.trackEvent(TelemetryEvents.VALIDATION_ERROR, { 
+        endpoint: 'createTrip',
+        error: validation.error || 'Unknown validation error'
+      });
+      
       return {
         status: 400,
         jsonBody: {
@@ -78,14 +89,34 @@ export async function createTrip(request: HttpRequest, context: InvocationContex
     // Convert to DTO
     const tripDto = toTripDetailDTO(trip);
 
+    // Track success metrics
+    const duration = Date.now() - startTime;
+    logger.trackEvent(TelemetryEvents.TRIP_CREATED, { 
+      userId: user.userId,
+      tripId: trip.id,
+      tripName: trip.name
+    });
+    logger.trackRequest('POST /api/trips', request.url, duration, 201, true, {
+      userId: user.userId
+    });
+
     return {
       status: 201,
       jsonBody: tripDto
     };
   } catch (error) {
-    context.error('Error creating trip', error);
+    const duration = Date.now() - startTime;
+    logger.error('Error creating trip', error instanceof Error ? error : undefined, {
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
     
     if (error instanceof Error && error.message.includes('Token validation failed')) {
+      logger.trackEvent(TelemetryEvents.AUTH_FAILED, { 
+        endpoint: 'createTrip',
+        reason: error.message
+      });
+      logger.trackRequest('POST /api/trips', request.url, duration, 401, false);
+      
       return {
         status: 401,
         jsonBody: {
@@ -94,6 +125,12 @@ export async function createTrip(request: HttpRequest, context: InvocationContex
         }
       };
     }
+
+    logger.trackEvent(TelemetryEvents.API_ERROR, { 
+      endpoint: 'createTrip',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
+    logger.trackRequest('POST /api/trips', request.url, duration, 500, false);
 
     return {
       status: 500,

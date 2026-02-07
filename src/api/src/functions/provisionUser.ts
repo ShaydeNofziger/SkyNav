@@ -10,8 +10,12 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/fu
 import { validateToken } from '../middleware/auth';
 import { createUserService } from '../services/UserService';
 import { handleAuthError, internalServerError } from '../utils/errorResponse';
+import { createLogger, TelemetryEvents } from '../utils/telemetry';
 
 export async function provisionUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+  const startTime = Date.now();
+  const logger = createLogger(context, 'provisionUser');
+  
   try {
     // Validate JWT token
     const user = await validateToken(request, context);
@@ -27,7 +31,18 @@ export async function provisionUser(request: HttpRequest, context: InvocationCon
     // Update last login timestamp
     await userService.updateLastLogin(user.userId);
 
-    context.log(`User provisioned: ${user.userId}`);
+    logger.info(`User provisioned: ${user.userId}`, { 
+      userId: user.userId,
+      email: user.email || 'unknown'
+    });
+
+    // Track user provisioning
+    const duration = Date.now() - startTime;
+    logger.trackEvent(TelemetryEvents.USER_PROVISIONED, { 
+      userId: user.userId,
+      email: user.email || 'unknown'
+    });
+    logger.trackRequest('POST /api/users/provision', request.url, duration, 200, true);
 
     return {
       status: 200,
@@ -42,11 +57,25 @@ export async function provisionUser(request: HttpRequest, context: InvocationCon
       }
     };
   } catch (error) {
-    context.error('Error provisioning user', error);
+    const duration = Date.now() - startTime;
+    logger.error('Error provisioning user', error instanceof Error ? error : undefined, {
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
     
     if (error instanceof Error && error.message.includes('Token validation failed')) {
+      logger.trackEvent(TelemetryEvents.AUTH_FAILED, { 
+        endpoint: 'provisionUser',
+        reason: error.message
+      });
+      logger.trackRequest('POST /api/users/provision', request.url, duration, 401, false);
       return handleAuthError(error);
     }
+
+    logger.trackEvent(TelemetryEvents.API_ERROR, { 
+      endpoint: 'provisionUser',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
+    logger.trackRequest('POST /api/users/provision', request.url, duration, 500, false);
 
     return internalServerError('Failed to provision user. Please try signing in again.');
   }

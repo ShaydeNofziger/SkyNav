@@ -22,6 +22,7 @@
     "@azure/cosmos": "^4.0.0",
     "@azure/functions": "^4.0.0",
     "@azure/identity": "^4.0.0",
+    "applicationinsights": "^3.13.0",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0"
   },

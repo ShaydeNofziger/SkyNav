@@ -10,6 +10,7 @@ import { validateToken } from '../middleware/auth';
 import { createTripService } from '../services/TripService';
 import { UpdateTripDTO, toTripDetailDTO } from '../dtos/TripDTO';
 import { TripStatus } from '../models/Trip';
+import { createLogger, TelemetryEvents } from '../utils/telemetry';
 
 /**
  * Validate update trip request body
@@ -54,13 +55,21 @@ function validateUpdateTripRequest(body: any): { valid: boolean; error?: string 
 }
 
 export async function updateTrip(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+  const startTime = Date.now();
+  const logger = createLogger(context, 'updateTrip');
+  
   try {
     // Validate JWT token
     const user = await validateToken(request, context);
+    logger.info('User authenticated', { userId: user.userId });
     
     // Get trip ID from route
     const tripId = request.params.id;
     if (!tripId) {
+      logger.warn('Trip ID missing');
+      const duration = Date.now() - startTime;
+      logger.trackRequest('PUT /api/trips/{id}', request.url, duration, 400, false);
+      
       return {
         status: 400,
         jsonBody: {
@@ -75,6 +84,14 @@ export async function updateTrip(request: HttpRequest, context: InvocationContex
     const validation = validateUpdateTripRequest(body);
     
     if (!validation.valid) {
+      logger.warn('Validation failed', { error: validation.error || 'Unknown validation error' });
+      logger.trackEvent(TelemetryEvents.VALIDATION_ERROR, { 
+        endpoint: 'updateTrip',
+        error: validation.error || 'Unknown validation error'
+      });
+      const duration = Date.now() - startTime;
+      logger.trackRequest('PUT /api/trips/{id}', request.url, duration, 400, false);
+      
       return {
         status: 400,
         jsonBody: {
@@ -91,14 +108,32 @@ export async function updateTrip(request: HttpRequest, context: InvocationContex
     // Convert to DTO
     const tripDto = toTripDetailDTO(trip);
 
+    // Track success
+    const duration = Date.now() - startTime;
+    logger.trackEvent(TelemetryEvents.TRIP_UPDATED, { 
+      userId: user.userId,
+      tripId: trip.id
+    });
+    logger.trackRequest('PUT /api/trips/{id}', request.url, duration, 200, true, {
+      userId: user.userId
+    });
+
     return {
       status: 200,
       jsonBody: tripDto
     };
   } catch (error) {
-    context.error('Error updating trip', error);
+    const duration = Date.now() - startTime;
+    logger.error('Error updating trip', error instanceof Error ? error : undefined, {
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
     
     if (error instanceof Error && error.message.includes('Token validation failed')) {
+      logger.trackEvent(TelemetryEvents.AUTH_FAILED, { 
+        endpoint: 'updateTrip'
+      });
+      logger.trackRequest('PUT /api/trips/{id}', request.url, duration, 401, false);
+      
       return {
         status: 401,
         jsonBody: {
@@ -109,6 +144,8 @@ export async function updateTrip(request: HttpRequest, context: InvocationContex
     }
 
     if (error instanceof Error && error.message.includes('Trip not found')) {
+      logger.trackRequest('PUT /api/trips/{id}', request.url, duration, 404, false);
+      
       return {
         status: 404,
         jsonBody: {
@@ -119,6 +156,12 @@ export async function updateTrip(request: HttpRequest, context: InvocationContex
     }
 
     if (error instanceof Error && error.message.includes('End date cannot be before start date')) {
+      logger.trackEvent(TelemetryEvents.VALIDATION_ERROR, { 
+        endpoint: 'updateTrip',
+        error: error.message
+      });
+      logger.trackRequest('PUT /api/trips/{id}', request.url, duration, 400, false);
+      
       return {
         status: 400,
         jsonBody: {
@@ -127,6 +170,12 @@ export async function updateTrip(request: HttpRequest, context: InvocationContex
         }
       };
     }
+
+    logger.trackEvent(TelemetryEvents.API_ERROR, { 
+      endpoint: 'updateTrip',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
+    logger.trackRequest('PUT /api/trips/{id}', request.url, duration, 500, false);
 
     return {
       status: 500,
