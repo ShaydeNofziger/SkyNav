@@ -5,6 +5,7 @@
  */
 
 import { TravelSegment } from './tripService';
+import { handleApiResponse } from '@/lib/apiErrors';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7071/api';
 
@@ -88,11 +89,7 @@ export async function createSegment(
     body: JSON.stringify(segment),
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to create segment: ${response.statusText}`);
-  }
-
-  return await response.json();
+  return handleApiResponse<TravelSegment>(response);
 }
 
 /**
@@ -113,11 +110,7 @@ export async function updateSegment(
     body: JSON.stringify(updates),
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to update segment: ${response.statusText}`);
-  }
-
-  return await response.json();
+  return handleApiResponse<TravelSegment>(response);
 }
 
 /**
@@ -136,9 +129,7 @@ export async function deleteSegment(
     },
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to delete segment: ${response.statusText}`);
-  }
+  return handleApiResponse<void>(response);
 }
 
 /**
@@ -157,9 +148,5 @@ export async function getSegment(
     },
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to get segment: ${response.statusText}`);
-  }
-
-  return await response.json();
+  return handleApiResponse<TravelSegment>(response);
 }

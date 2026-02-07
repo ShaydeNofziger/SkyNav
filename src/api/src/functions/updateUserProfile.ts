@@ -8,6 +8,15 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { validateToken } from '../middleware/auth';
 import { createUserService } from '../services/UserService';
+import { 
+  badRequest, 
+  notFound, 
+  internalServerError, 
+  handleAuthError,
+  validationError,
+  parseRequestBody
+} from '../utils/errorResponse';
+import { validateUserProfile } from '../utils/validation';
 
 interface UpdateProfileRequest {
   displayName?: string;
@@ -25,18 +34,23 @@ export async function updateUserProfile(request: HttpRequest, context: Invocatio
     // Validate JWT token
     const user = await validateToken(request, context);
     
-    // Parse request body
-    const body = await request.json() as UpdateProfileRequest;
+    // Parse request body with error handling
+    const parseResult = await parseRequestBody<UpdateProfileRequest>(request);
+    if (!parseResult.success) {
+      return parseResult.response;
+    }
+    
+    const body = parseResult.data;
 
-    // Validate input
+    // Validate that at least one field is provided
     if (!body || Object.keys(body).length === 0) {
-      return {
-        status: 400,
-        jsonBody: {
-          error: 'Bad request',
-          message: 'At least one profile field must be provided'
-        }
-      };
+      return badRequest('At least one profile field must be provided for update');
+    }
+
+    // Validate profile fields
+    const validation = validateUserProfile(body);
+    if (!validation.valid) {
+      return validationError('Invalid profile data', validation.errors);
     }
 
     // Update user profile
@@ -59,31 +73,14 @@ export async function updateUserProfile(request: HttpRequest, context: Invocatio
     context.error('Error updating user profile', error);
     
     if (error instanceof Error && error.message.includes('Token validation failed')) {
-      return {
-        status: 401,
-        jsonBody: {
-          error: 'Unauthorized',
-          message: error.message
-        }
-      };
+      return handleAuthError(error);
     }
 
     if (error instanceof Error && error.message === 'User not found') {
-      return {
-        status: 404,
-        jsonBody: {
-          error: 'User not found'
-        }
-      };
+      return notFound('User profile not found');
     }
 
-    return {
-      status: 500,
-      jsonBody: {
-        error: 'Internal server error',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      }
-    };
+    return internalServerError();
   }
 }
 

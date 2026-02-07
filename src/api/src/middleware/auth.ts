@@ -96,7 +96,7 @@ export const validateToken = async (
   const token = extractToken(request);
   
   if (!token) {
-    throw new Error('Authorization header missing or invalid format');
+    throw new Error('Authorization header is missing or has invalid format. Expected: "Bearer <token>"');
   }
 
   try {
@@ -104,7 +104,7 @@ export const validateToken = async (
     const decoded = jwt.decode(token, { complete: true });
     
     if (!decoded || typeof decoded === 'string' || !decoded.header.kid) {
-      throw new Error('Invalid token format');
+      throw new Error('Token format is invalid. Please sign in again.');
     }
 
     // Get signing key from JWKS
@@ -116,7 +116,7 @@ export const validateToken = async (
     const policyName = process.env.AZURE_AD_B2C_POLICY_NAME;
 
     if (!clientId || !tenantName || !policyName) {
-      throw new Error('Azure AD B2C configuration missing');
+      throw new Error('Authentication service configuration is missing. Please contact support.');
     }
 
     const issuer = `https://${tenantName}.b2clogin.com/${process.env.AZURE_AD_B2C_TENANT_ID}/v2.0/`;
@@ -136,6 +136,16 @@ export const validateToken = async (
     };
   } catch (error) {
     context.error('JWT validation failed', error);
+    
+    // Provide more specific error messages
+    if (error instanceof jwt.TokenExpiredError) {
+      throw new Error('Your session has expired. Please sign in again.');
+    }
+    
+    if (error instanceof jwt.JsonWebTokenError) {
+      throw new Error('Authentication token is invalid. Please sign in again.');
+    }
+    
     throw new Error(`Token validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
