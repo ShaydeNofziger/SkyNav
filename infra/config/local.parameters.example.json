@@ -1,0 +1,46 @@
+# Local development parameters - Example Configuration
+#
+# This is an EXAMPLE file showing the structure for local.parameters.json
+# JSON files cannot contain comments, so this file uses .example extension
+#
+# To use:
+# 1. Copy this file to local.parameters.json
+# 2. Remove all comment lines (lines starting with #)
+# 3. Update values with your actual configuration
+# 4. local.parameters.json is git-ignored and will not be committed
+
+# Example structure (remove comments when copying):
+
+{
+  "environment": "dev",
+  "location": "eastus",
+  "projectName": "skynav",
+  "azureSubscriptionId": "your-subscription-id-here",
+  "resources": {
+    "resourceGroup": "rg-skynav-dev",
+    "cosmosDb": {
+      "accountName": "cosmos-skynav-dev",
+      "connectionString": "your-cosmos-db-connection-string-here"
+    },
+    "functionApp": {
+      "name": "func-skynav-dev"
+    },
+    "staticWebApp": {
+      "name": "stapp-skynav-dev",
+      "deploymentToken": "your-static-web-app-deployment-token-here"
+    },
+    "appInsights": {
+      "name": "appi-skynav-dev",
+      "instrumentationKey": "your-app-insights-instrumentation-key-here",
+      "connectionString": "your-app-insights-connection-string-here"
+    },
+    "azureAdB2C": {
+      "tenantName": "your-tenant-name",
+      "tenantId": "your-tenant-id",
+      "clientId": "your-client-id",
+      "clientSecret": "your-client-secret",
+      "policyName": "B2C_1_signupsignin"
+    }
+  }
+}
+
