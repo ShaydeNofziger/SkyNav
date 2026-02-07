@@ -8,8 +8,12 @@
 
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 import { createDropZoneService } from '../services/DropZoneService';
+import { createLogger, TelemetryEvents, TelemetryMetrics } from '../utils/telemetry';
 
 export async function getDropzones(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+  const startTime = Date.now();
+  const logger = createLogger(context, 'getDropzones');
+  
   try {
     // Parse query parameters
     const url = new URL(request.url);
@@ -31,6 +35,10 @@ export async function getDropzones(request: HttpRequest, context: InvocationCont
 
     // Validate pagination parameters
     if (isNaN(page) || page < 1) {
+      logger.warn('Invalid page parameter');
+      const duration = Date.now() - startTime;
+      logger.trackRequest('GET /api/dropzones', request.url, duration, 400, false);
+      
       return {
         status: 400,
         jsonBody: {
@@ -41,6 +49,10 @@ export async function getDropzones(request: HttpRequest, context: InvocationCont
     }
 
     if (isNaN(pageSize) || pageSize < 1 || pageSize > 100) {
+      logger.warn('Invalid pageSize parameter');
+      const duration = Date.now() - startTime;
+      logger.trackRequest('GET /api/dropzones', request.url, duration, 400, false);
+      
       return {
         status: 400,
         jsonBody: {
@@ -62,14 +74,36 @@ export async function getDropzones(request: HttpRequest, context: InvocationCont
       pageSize
     });
 
-    context.log(`Retrieved ${result.dropzones.length} dropzones (page ${page}, total ${result.totalCount})`);
+    logger.info(`Retrieved ${result.dropzones.length} dropzones (page ${page}, total ${result.totalCount})`);
+
+    // Track success metrics
+    const duration = Date.now() - startTime;
+    logger.trackEvent(TelemetryEvents.DROPZONE_LIST_VIEWED, { 
+      region: region || 'all',
+      country: country || 'all',
+      page: page.toString(),
+      resultCount: result.dropzones.length.toString()
+    });
+    logger.trackMetric(TelemetryMetrics.ITEM_COUNT, result.dropzones.length, {
+      endpoint: 'getDropzones'
+    });
+    logger.trackRequest('GET /api/dropzones', request.url, duration, 200, true);
 
     return {
       status: 200,
       jsonBody: result
     };
   } catch (error) {
-    context.error('Error listing dropzones', error);
+    const duration = Date.now() - startTime;
+    logger.error('Error listing dropzones', error instanceof Error ? error : undefined, {
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
+    
+    logger.trackEvent(TelemetryEvents.API_ERROR, { 
+      endpoint: 'getDropzones',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    });
+    logger.trackRequest('GET /api/dropzones', request.url, duration, 500, false);
 
     return {
       status: 500,
