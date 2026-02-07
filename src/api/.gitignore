@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Local settings
+local.settings.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Azure Functions
+.azurefunctions/
+__azurite_db*__.json
+__blobstorage__/
+__queuestorage__/
+
+# Test coverage
+coverage/
+.nyc_output/
