@@ -1,0 +1,51 @@
+{
+  "environment": "dev",
+  "location": "eastus",
+  "projectName": "skynav",
+  "resources": {
+    "resourceGroup": "rg-skynav-{environment}",
+    "cosmosDb": {
+      "accountName": "cosmos-skynav-{environment}",
+      "databaseName": "SkyNavDB",
+      "containers": [
+        {
+          "name": "dropzones",
+          "partitionKey": "/id"
+        },
+        {
+          "name": "annotations",
+          "partitionKey": "/dropzoneId"
+        },
+        {
+          "name": "communityNotes",
+          "partitionKey": "/dropzoneId"
+        },
+        {
+          "name": "users",
+          "partitionKey": "/id"
+        },
+        {
+          "name": "auditLog",
+          "partitionKey": "/entityType"
+        }
+      ]
+    },
+    "staticWebApp": {
+      "name": "stapp-skynav-{environment}",
+      "sku": "Free"
+    },
+    "functionApp": {
+      "name": "func-skynav-{environment}",
+      "storageAccountName": "stskynav{environment}",
+      "runtime": "node",
+      "runtimeVersion": "18"
+    },
+    "appInsights": {
+      "name": "appi-skynav-{environment}"
+    }
+  },
+  "tags": {
+    "project": "SkyNav",
+    "deployedBy": "PowerShell"
+  }
+}

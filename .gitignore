@@ -166,6 +166,9 @@ temp/
 # Azure
 *.publishsettings
 
+# Infrastructure secrets
+infra/config/local.parameters.json
+
 # Backup files
 *.bak
 *.backup
