@@ -163,7 +163,7 @@ The backend is designed as a **RESTful API** that:
 
 ### Technology Stack (Backend)
 
-- **Runtime**: Node.js 18+ / TypeScript
+- **Runtime**: Node.js 24+ / TypeScript
 - **Platform**: Azure Functions v4 (HTTP Triggers)
 - **Deployment**: Consumption Plan (serverless)
 - **API Protocol**: REST over HTTPS

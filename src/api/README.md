@@ -14,7 +14,7 @@ The API will be organized into the following components:
 
 ## Technology Stack
 
-- **Runtime**: Node.js 18+ / TypeScript
+- **Runtime**: Node.js 24+ / TypeScript
 - **Framework**: Azure Functions v4
 - **Database**: Azure Cosmos DB (SQL API)
 - **Storage**: Azure Blob Storage

@@ -189,7 +189,7 @@ jobs:
 
 **What it does**:
 1. Checks out code
-2. Sets up Node.js 18
+2. Sets up Node.js 24
 3. Installs dependencies
 4. Builds TypeScript
 5. Runs tests (optional)
@@ -211,7 +211,7 @@ jobs:
 
 **What it does**:
 1. Checks out code
-2. Sets up Node.js 18
+2. Sets up Node.js 24
 3. Installs dependencies (with `--legacy-peer-deps`)
 4. Builds Next.js app
 5. Deploys to Azure Static Web Apps

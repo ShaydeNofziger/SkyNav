@@ -137,7 +137,7 @@ The following are intentionally excluded from the MVP to maintain scope discipli
 
 ### Prerequisites
 
-- **Node.js** 18+ and npm
+- **Node.js** 24+ and npm
 - **Azure Functions Core Tools** (for API development)
 - **Azure Cosmos DB Emulator** (optional for local database)
 - **Git**
