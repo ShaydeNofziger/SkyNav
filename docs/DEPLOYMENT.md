@@ -86,7 +86,7 @@ For multiple environments (dev, staging, prod), you can use GitHub Environments:
 
 **Steps**:
 1. Checkout code
-2. Setup Node.js 18
+2. Setup Node.js 24
 3. Install dependencies (`npm ci`)
 4. Build TypeScript (`npm run build`)
 5. Run tests (`npm test`)
@@ -113,7 +113,7 @@ For multiple environments (dev, staging, prod), you can use GitHub Environments:
 
 **Steps**:
 1. Checkout code
-2. Setup Node.js 18
+2. Setup Node.js 24
 3. Install dependencies (`npm ci --legacy-peer-deps`)
 4. Build Next.js app (`npm run build`)
 5. Deploy to Azure Static Web Apps

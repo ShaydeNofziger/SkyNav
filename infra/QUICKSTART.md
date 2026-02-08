@@ -28,7 +28,7 @@ cd infra/scripts
 **What gets created:**
 - Resource Group
 - Cosmos DB (serverless, with 5 containers)
-- Azure Functions (Node.js 18)
+- Azure Functions (Node.js 24)
 - Static Web App
 - Application Insights
 - Storage Account

@@ -7,7 +7,7 @@ This directory contains Infrastructure as Code (IaC) configuration and deploymen
 SkyNav uses a serverless architecture on Azure with the following components:
 
 - **Azure Static Web Apps**: Hosts the Next.js frontend
-- **Azure Functions**: Serverless API backend (Node.js 18)
+- **Azure Functions**: Serverless API backend (Node.js 24)
 - **Azure Cosmos DB**: NoSQL database (SQL API, serverless mode)
 - **Azure Blob Storage**: File storage for images and assets (included with Function App)
 - **Azure Maps**: Mapping services (configured separately)
@@ -234,7 +234,7 @@ For local development, use Azure emulators and local services:
 
 1. **Azure Functions Core Tools**: [Install](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local)
 2. **Azure Cosmos DB Emulator**: [Install](https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator) (Windows) or use Docker
-3. **Node.js 18+**: [Install](https://nodejs.org/)
+3. **Node.js 24+**: [Install](https://nodejs.org/)
 
 #### Setup
 
@@ -334,7 +334,7 @@ Where `{env}` is `dev`, `staging`, or `prod`.
 
 ### Azure Functions
 
-- **Runtime**: Node.js 18
+- **Runtime**: Node.js 24
 - **Plan**: Consumption (serverless)
 - **Trigger**: HTTP (REST API)
 
@@ -428,7 +428,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '24'
       
       - name: Deploy Functions
         run: |
