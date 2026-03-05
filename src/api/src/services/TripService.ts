@@ -412,8 +412,37 @@ export class TripService {
   }
 
   /**
+   * Update checklist items for a trip
+   *
+   * @param tripId - Trip ID
+   * @param userId - User ID (partition key)
+   * @param checklist - Updated checklist items
+   * @returns Updated trip
+   */
+  async updateChecklist(
+    tripId: string,
+    userId: string,
+    checklist: ChecklistItem[]
+  ): Promise<Trip> {
+    const trip = await this.getTripById(tripId, userId);
+    if (!trip) {
+      throw new Error('Trip not found');
+    }
+
+    trip.checklist = checklist;
+    trip.updatedAt = new Date().toISOString();
+
+    const { resource } = await this.container.items.upsert<Trip>(trip);
+    if (!resource) {
+      throw new Error('Failed to update checklist');
+    }
+
+    return resource;
+  }
+
+  /**
    * Get a specific travel segment from a trip
-   * 
+   *
    * @param tripId - Trip ID
    * @param userId - User ID (partition key)
    * @param segmentId - Travel segment ID

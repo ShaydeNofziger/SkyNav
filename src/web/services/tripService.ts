@@ -17,8 +17,9 @@ export enum TripStatus {
 
 export interface ChecklistItem {
   id: string;
-  text: string;
+  label: string;
   completed: boolean;
+  order: number;
 }
 
 export interface TripSummary {
@@ -204,4 +205,24 @@ export async function deleteTrip(accessToken: string, tripId: string): Promise<v
   });
 
   return handleApiResponse<void>(response);
+}
+
+/**
+ * Update checklist items for a trip
+ */
+export async function updateChecklist(
+  accessToken: string,
+  tripId: string,
+  checklist: ChecklistItem[]
+): Promise<TripDetail> {
+  const response = await fetch(`${API_BASE_URL}/trips/${tripId}/checklist`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ checklist }),
+  });
+
+  return handleApiResponse<TripDetail>(response);
 }

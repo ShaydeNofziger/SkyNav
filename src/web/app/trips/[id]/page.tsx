@@ -4,9 +4,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Container } from "@/components/Layout";
 import { SegmentCard, SegmentForm } from "@/components/Trip";
 import { useState, useEffect } from "react";
-import { getTrip, updateTrip, TripDetail, TripStatus } from "@/services/tripService";
+import { getTrip, updateChecklist, TripDetail, TripStatus } from "@/services/tripService";
 import { createSegment, deleteSegment, CreateSegmentRequest } from "@/services/segmentService";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 
 const statusColors: Record<TripStatus, { bg: string; text: string; label: string }> = {
@@ -24,7 +24,6 @@ function formatDate(dateString: string): string {
 export default function TripDetailPage() {
   const { isAuthenticated, login, getAccessToken } = useAuth();
   const params = useParams();
-  const router = useRouter();
   const tripId = params.id as string;
 
   const [trip, setTrip] = useState<TripDetail | null>(null);
@@ -101,23 +100,24 @@ export default function TripDetailPage() {
   const handleToggleChecklist = async (itemId: string) => {
     if (!trip) return;
 
+    const updatedChecklist = trip.checklist.map(item =>
+      item.id === itemId ? { ...item, completed: !item.completed } : item
+    );
+
+    // Update locally first for instant feedback
+    setTrip({ ...trip, checklist: updatedChecklist });
+
     try {
       const token = await getAccessToken();
-      if (!token) return;
+      if (!token) {
+        loadTrip(); // Revert optimistic update
+        return;
+      }
 
-      // Toggle the checklist item
-      const updatedChecklist = trip.checklist.map(item =>
-        item.id === itemId ? { ...item, completed: !item.completed } : item
-      );
-
-      // Update locally first for instant feedback
-      setTrip({ ...trip, checklist: updatedChecklist });
-
-      // TODO: Implement checklist update API endpoint
-      // Will need PUT /api/trips/{id}/checklist endpoint to persist checklist changes
+      await updateChecklist(token, tripId, updatedChecklist);
     } catch (err) {
-      console.error('Error updating checklist:', err);
-      // Reload to get accurate state
+      // Revert optimistic update on failure
+      setError('Failed to save checklist change. Please try again.');
       loadTrip();
     }
   };
@@ -259,7 +259,7 @@ export default function TripDetailPage() {
                       className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <span className={`ml-3 text-sm ${item.completed ? 'text-gray-400 line-through' : 'text-gray-700'}`}>
-                      {item.text}
+                      {item.label}
                     </span>
                   </label>
                 ))}
